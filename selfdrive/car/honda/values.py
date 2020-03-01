@@ -489,6 +489,7 @@ FW_VERSIONS = {
       b'39990-TEZ-T020\x00\x00',
       b'39990-TGG-A020\x00\x00',
       b'39990-TGG-A120\x00\x00',
+      b'39990-TGG,A120\x00\x00', ## MODDED EPS
       b'39990-TGG-J510\x00\x00',
       b'39990-TGL-E130\x00\x00',
       b'39990-TGN-E120\x00\x00',
