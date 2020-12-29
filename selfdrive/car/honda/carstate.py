@@ -98,10 +98,10 @@ def get_can_signals(CP, gearbox_msg="GEARBOX"):
       ("ACCEL_COMMAND", "ACC_CONTROL", 0),
       ("AEB_STATUS", "ACC_CONTROL", 0),
     # needed for longitundinal control
-      ("WHEEL_TICKS", "WHEEL_TICK_FL", 0),
-      ("WHEEL_TICKS", "WHEEL_TICK_FR", 0),
-      ("WHEEL_TICKS", "WHEEL_TICK_RL", 0),
-      ("WHEEL_TICKS", "WHEEL_TICK_RR", 0),
+      ("WHEEL_TICK_FL", "WHEEL_TICKS", 0),
+      ("WHEEL_TICK_FR", "WHEEL_TICKS", 0),
+      ("WHEEL_TICK_RL", "WHEEL_TICKS", 0),
+      ("WHEEL_TICK_RR", "WHEEL_TICKS", 0)
     ]
     checks += [
       ("ACC_HUD", 10),
@@ -110,11 +110,6 @@ def get_can_signals(CP, gearbox_msg="GEARBOX"):
       ("ACC_CONTROL", 50),
     ]
 
-    # needed for longitundinal control
-    signals += [("WHEEL_TICKS", "WHEEL_TICK_FL", 0),
-                ("WHEEL_TICKS", "WHEEL_TICK_FR", 0),
-                ("WHEEL_TICKS", "WHEEL_TICK_RL", 0),
-                ("WHEEL_TICKS", "WHEEL_TICK_RR", 0)]
     if CP.openpilotLongitudinalControl:
       signals += [("BRAKE_ERROR_1", "STANDSTILL", 1),
                   ("BRAKE_ERROR_2", "STANDSTILL", 1)]
