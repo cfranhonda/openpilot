@@ -97,6 +97,11 @@ def get_can_signals(CP, gearbox_msg="GEARBOX"):
       ("CRUISE_SPEED", "ACC_HUD", 0),
       ("ACCEL_COMMAND", "ACC_CONTROL", 0),
       ("AEB_STATUS", "ACC_CONTROL", 0),
+    # needed for longitundinal control
+      ("WHEEL_TICKS", "WHEEL_TICK_FL", 0),
+      ("WHEEL_TICKS", "WHEEL_TICK_FR", 0),
+      ("WHEEL_TICKS", "WHEEL_TICK_RL", 0),
+      ("WHEEL_TICKS", "WHEEL_TICK_RR", 0),
     ]
     checks += [
       ("ACC_HUD", 10),
@@ -104,6 +109,12 @@ def get_can_signals(CP, gearbox_msg="GEARBOX"):
       ("GAS_PEDAL_2", 100),
       ("ACC_CONTROL", 50),
     ]
+
+    # needed for longitundinal control
+    signals += [("WHEEL_TICKS", "WHEEL_TICK_FL", 0),
+                ("WHEEL_TICKS", "WHEEL_TICK_FR", 0),
+                ("WHEEL_TICKS", "WHEEL_TICK_RL", 0),
+                ("WHEEL_TICKS", "WHEEL_TICK_RR", 0)]
     if CP.openpilotLongitudinalControl:
       signals += [("BRAKE_ERROR_1", "STANDSTILL", 1),
                   ("BRAKE_ERROR_2", "STANDSTILL", 1)]
@@ -259,6 +270,12 @@ class CarState(CarStateBase):
     ret.wheelSpeeds.rl = cp.vl["WHEEL_SPEEDS"]["WHEEL_SPEED_RL"] * CV.KPH_TO_MS * speed_factor
     ret.wheelSpeeds.rr = cp.vl["WHEEL_SPEEDS"]["WHEEL_SPEED_RR"] * CV.KPH_TO_MS * speed_factor
     v_wheel = (ret.wheelSpeeds.fl + ret.wheelSpeeds.fr + ret.wheelSpeeds.rl + ret.wheelSpeeds.rr)/4.
+
+    self.FL_wheelTick = cp.vl["WHEEL_TICKS"]['WHEEL_TICK_FL']
+    self.FR_wheelTick = cp.vl["WHEEL_TICKS"]['WHEEL_TICK_FR']
+    self.RL_wheelTick = cp.vl["WHEEL_TICKS"]['WHEEL_TICK_RL']
+    self.RR_wheelTick = cp.vl["WHEEL_TICKS"]['WHEEL_TICK_RR']
+    self.avg_wheelTick = (self.FL_wheelTick + self.FR_wheelTick + self.RL_wheelTick + self.RR_wheelTick) / 4.
 
     # blend in transmission speed at low speed, since it has more low speed accuracy
     v_weight = interp(v_wheel, v_weight_bp, v_weight_v)
