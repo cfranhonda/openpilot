@@ -66,6 +66,7 @@ def create_acc_commands(packer, enabled, accel, gas, idx, stopped, starting, car
     "BRAKE_REQUEST": braking,
     "STANDSTILL": standstill,
     "STANDSTILL_RELEASE": standstill_release,
+    "CMBS_OFF": 1,
   }
   commands.append(packer.make_can_msg("ACC_CONTROL", bus, acc_control_values, idx))
 
@@ -101,7 +102,7 @@ def create_bosch_supplemental_1(packer, car_fingerprint, idx):
   return packer.make_can_msg("BOSCH_SUPPLEMENTAL_1", bus, values, idx)
 
 
-def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, is_metric, idx, openpilot_longitudinal_control, stock_hud, useTeslaRadar):
+def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, is_metric, idx, openpilot_longitudinal_control, stock_hud):
   commands = []
   bus_pt = get_pt_bus(car_fingerprint)
   radar_disabled = car_fingerprint in HONDA_BOSCH and openpilot_longitudinal_control
@@ -118,6 +119,10 @@ def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, is_metric, idx, 
         'ACC_ON': hud.car != 0,
         'SET_TO_X1': 1,
         'IMPERIAL_UNIT': int(not is_metric),
+        # TODO: which bits are for the indicator, hud nag, etc.
+        'FCM_OFF_1': 1,
+        'FCM_OFF_2': 1,
+        'FCM_OFF_3': 1,
       }
     else:
       acc_hud_values = {
@@ -149,6 +154,7 @@ def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, is_metric, idx, 
   if radar_disabled and car_fingerprint in HONDA_BOSCH:
     radar_hud_values = {
       'SET_TO_1': 0x01,
+      'CMBS_OFF': 1,
     }
     commands.append(packer.make_can_msg('RADAR_HUD', bus_pt, radar_hud_values, idx))
 
