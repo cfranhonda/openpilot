@@ -11,7 +11,8 @@
 	url = ../../commaai/laika.git
 [submodule "cereal"]
 	path = cereal
-	url = ../../commaai/cereal.git
+	url = ../../csouers/cereal.git
+	branch = max_readers
 [submodule "rednose_repo"]
 	path = rednose_repo
 	url = ../../commaai/rednose.git
