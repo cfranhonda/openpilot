@@ -39,8 +39,8 @@ if not USE_ALL_OBJECTS:
   RADAR_B_MSGS = list(range(0x372, 0x37F, 3))
 else:
   # use these for point cloud + 'L' tracks (32 'M' points + 5 'L' tracks)
-  RADAR_A_MSGS = list(range(0x310, 0x37F, 3))
-  RADAR_B_MSGS = list(range(0x311, 0x37F, 3))
+  RADAR_A_MSGS = list(range(0x310, 0x36F, 3)) + list(range(0x371, 0x37F, 3))
+  RADAR_B_MSGS = list(range(0x311, 0x36F, 3)) + list(range(0x372, 0x37F, 3))
 
 OBJECT_MIN_PROBABILITY = 50.
 CLASS_MIN_PROBABILITY = 50.
