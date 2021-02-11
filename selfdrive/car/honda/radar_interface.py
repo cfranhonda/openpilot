@@ -30,7 +30,7 @@ def _create_nidec_can_parser(car_fingerprint):
 
 BOSCH_MAX_DIST = 250.  # max distance for radar
 
-# Tesla Bosch firmware reports 37 objects in total. We can use all tracks ('M' and 'L') or a selected set of the 5 ('L').
+# Tesla Bosch firmware reports 37 data points in total. We can use all points + tracks ('M' and 'L') or a selected set of 5 ('L').
 # 'L' tracks can drop out at distances lower than 6 meters leaving us with no lead data. Need to use all points and maybe filter out extraneous points
 USE_ALL_OBJECTS = True
 if not USE_ALL_OBJECTS:
@@ -38,7 +38,7 @@ if not USE_ALL_OBJECTS:
   RADAR_A_MSGS = list(range(0x371, 0x37F, 3))
   RADAR_B_MSGS = list(range(0x372, 0x37F, 3))
 else:
-  # use these for point cloud + 'L' tracks (32 'M' tracks + 5 'L' tracks)
+  # use these for point cloud + 'L' tracks (32 'M' points + 5 'L' tracks)
   RADAR_A_MSGS = list(range(0x310, 0x37F, 3))
   RADAR_B_MSGS = list(range(0x311, 0x37F, 3))
 
