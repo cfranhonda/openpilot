@@ -230,7 +230,7 @@ class CarController():
       print(bool(stopped))
 
       idx = (frame//10) % 4
-      can_sends.extend(hondacan.create_ui_commands(self.packer, pcm_speed, hud, CS.CP.carFingerprint, CS.is_metric, idx, CS.CP.openpilotLongitudinalControl, CS.stock_hud, self.useTeslaRadar))
+      can_sends.extend(hondacan.create_ui_commands(self.packer, pcm_speed, hud, CS.CP.carFingerprint, CS.is_metric, idx, CS.CP.openpilotLongitudinalControl, CS.stock_hud))
 
     if not CS.CP.openpilotLongitudinalControl:
       if (frame % 2) == 0:
