@@ -66,7 +66,6 @@ def create_acc_commands(packer, enabled, accel, gas, idx, stopped, starting, car
     "BRAKE_REQUEST": braking,
     "STANDSTILL": standstill,
     "STANDSTILL_RELEASE": standstill_release,
-    "CMBS_OFF": 1,
   }
   commands.append(packer.make_can_msg("ACC_CONTROL", bus, acc_control_values, idx))
 
@@ -113,7 +112,8 @@ def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, is_metric, idx, 
       acc_hud_values = {
         'CRUISE_SPEED': hud.v_cruise,
         'ENABLE_MINI_CAR': 1,
-        'SET_TO_1': 1,
+        # TODO: set this back in opendbc
+        # 'SET_TO_1': 1,
         'HUD_LEAD': hud.car,
         'HUD_DISTANCE': 3,
         'ACC_ON': hud.car != 0,
