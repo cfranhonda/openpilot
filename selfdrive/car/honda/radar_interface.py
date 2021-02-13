@@ -110,7 +110,7 @@ class RadarInterface(RadarInterfaceBase):
   def update(self, can_strings):
     # radard at 20Hz and return no points
     if self.radar_off_can:
-      return car.RadarData.new_message()
+      return super().update(None)
 
     if can_strings is not None:
       vls = self.rcp.update_strings(can_strings)
