@@ -44,7 +44,7 @@ def create_brake_command(packer, apply_brake, pump_on, pcm_override, pcm_cancel_
   bus = get_pt_bus(car_fingerprint)
   return packer.make_can_msg("BRAKE_COMMAND", bus, values, idx)
 
-
+BOSCH_BRAKE_LIGHT_THRESHOLD = -0.06
 def create_acc_commands(packer, enabled, accel, gas, idx, stopped, starting, car_fingerprint):
   commands = []
   bus = get_pt_bus(car_fingerprint)
@@ -53,7 +53,7 @@ def create_acc_commands(packer, enabled, accel, gas, idx, stopped, starting, car
   # no gas = -30000
   gas_command = gas if enabled and gas > 0 else -30000
   accel_command = accel if enabled else 0
-  braking = 1 if enabled and accel < -0.06 else 0
+  braking = 1 if enabled and accel < BOSCH_BRAKE_LIGHT_THRESHOLD else 0
   standstill = 1 if enabled and stopped else 0
   standstill_release = 1 if enabled and starting else 0
 

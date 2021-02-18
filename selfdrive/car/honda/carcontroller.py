@@ -13,8 +13,10 @@ import cereal.messaging as messaging
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
-BOSCH_ACCEL_LOOKUP_BP = [-1., 0., 0.6]
-BOSCH_ACCEL_LOOKUP_V = [-3.5, 0., 2.]
+BOSCH_ACCEL_MAX = 2.0
+BOSCH_ACCEL_MIN = -3.5
+# BOSCH_ACCEL_LOOKUP_BP = [-1., 0., 0.6]
+# BOSCH_ACCEL_LOOKUP_V = [-3.5, 0., 2.]
 BOSCH_GAS_LOOKUP_BP = [0., 0.6]
 BOSCH_GAS_LOOKUP_V = [0, 2000]
 
@@ -95,7 +97,7 @@ class CarController():
     self.stopped_frame = 0
     self.last_wheeltick = 0
     self.last_wheeltick_ct = 0
-    self.sm = messaging.SubMaster(['longitudinalPlan'])
+    self.sm = messaging.SubMaster(['controlsState'])
 
     # begin tesla radar
     p = Params()
@@ -161,17 +163,16 @@ class CarController():
     if CS.CP.carFingerprint in HONDA_BOSCH:
       stopped = 0
       starting = 0
-      accel = actuators.gas - actuators.brake
-      if frame % 2 == 0
+      # accel = actuators.gas - actuators.brake
       # rouding prevents accel_target from alternating between very small positive and negative value
-        self.sm.update()
-        accel_target = self.sm['longitudinalPlan'].aTarget
-        accel_error = round(accel_target - CS.out.aEgo, 2)
-        accel_adj = accel_error * (1 if accel_target < 0. else 0.)
-        accel_out = accel_target + (accel_adj if abs(accel_error) >= 0.1 else 0)
-        accel_out = clip(accel_out, -3.5, 2.0)
+      self.sm.update()
+      accel_target = self.sm['controlsState'].aTarget
+      accel_error = round(accel_target - CS.out.aEgo, 2)
+      accel_adj = accel_error * (1 if accel_target < 0. else 0.)
+      accel_out = accel_target + (accel_adj if abs(accel_error) >= 0.1 else 0)
+      apply_accel = clip(accel_out, BOSCH_ACCEL_MIN, BOSCH_ACCEL_MAX)
       # go to standstill if desired
-      if accel < 0 and CS.out.vEgo <= 0.1:
+      if apply_accel < 0 and CS.out.vEgo <= 0.1:
         # after 6 readings of the same avg wheel tick signal, set standstill
         if CS.avg_wheelTick == self.last_wheeltick:
           self.last_wheeltick_ct += 1
@@ -183,17 +184,17 @@ class CarController():
             stopped = 1
             # go to full brake after 1 second of standstill
             if (frame - self.stopped_frame) >= 100:
-              accel = -1.0
+              apply_accel = BOSCH_ACCEL_MIN
         # wheeltick changed since last loop. no standstill
         else:
           self.last_wheeltick = CS.avg_wheelTick
           self.last_wheeltick_ct = 0
           self.stopped_frame = 0
       # release standstill
-      if accel >= 0 and (0.3 >= CS.out.vEgo >= 0):
+      if apply_accel >= 0 and (0.3 >= CS.out.vEgo >= 0):
         starting = 1
-      apply_accel = interp(accel_out, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
-      apply_gas = interp(accel, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
+      # apply_accel = interp(accel_out, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
+      apply_gas = interp(actuators.gas, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
     else:
       apply_gas = clip(actuators.gas, 0., 1.)
       apply_brake = int(clip(self.brake_last * P.BRAKE_MAX, 0, P.BRAKE_MAX - 1))
@@ -220,24 +221,24 @@ class CarController():
 
     # Send dashboard UI commands.
     if (frame % 10) == 0:
-      print('braking:', end=' ')
-      print(bool(accel < -0.06), end=' ')
-      print('|', end= ' ')
-
-      print('max_brake:', end=' ')
-      print(bool(accel == -1.0), end= ' ')
-      print('|', end= ' ')
-
-      print('accel:', end=' ')
-      print(round(accel, 2), end = ' ')
-      print('|', end= ' ')
-
-      print('apply_accel:', end=' ')
-      print(round(apply_accel, 2), end=' ')
-      print('|', end= ' ')
-
-      print('stopped:', end=' ')
-      print(bool(stopped))
+      # print('braking:', end=' ')
+      # print(bool(apply_accel < -0.06), end=' ')
+      # print('|', end= ' ')
+      #
+      # print('max_brake:', end=' ')
+      # print(bool(apply_accel == -1.0), end= ' ')
+      # print('|', end= ' ')
+      #
+      # print('accel:', end=' ')
+      # print(round(accel, 2), end = ' ')
+      # print('|', end= ' ')
+      #
+      # print('apply_accel:', end=' ')
+      # print(round(apply_accel, 2), end=' ')
+      # print('|', end= ' ')
+      #
+      # print('stopped:', end=' ')
+      # print(bool(stopped))
 
       idx = (frame//10) % 4
       can_sends.extend(hondacan.create_ui_commands(self.packer, pcm_speed, hud, CS.CP.carFingerprint, CS.is_metric, idx, CS.CP.openpilotLongitudinalControl, CS.stock_hud))
