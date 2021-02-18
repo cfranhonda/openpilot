@@ -8,6 +8,7 @@ from selfdrive.car.honda import hondacan, teslaradarcan
 from selfdrive.car.honda.values import CruiseButtons, CAR, VISUAL_HUD, HONDA_BOSCH, CarControllerParams
 from opendbc.can.packer import CANPacker
 from common.params import Params
+import cereal.messaging as messaging
 
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
@@ -94,6 +95,7 @@ class CarController():
     self.stopped_frame = 0
     self.last_wheeltick = 0
     self.last_wheeltick_ct = 0
+    self.sm = messaging.SubMaster(['longitudinalPlan'])
 
     # begin tesla radar
     p = Params()
@@ -160,6 +162,14 @@ class CarController():
       stopped = 0
       starting = 0
       accel = actuators.gas - actuators.brake
+      if frame % 2 == 0
+      # rouding prevents accel_target from alternating between very small positive and negative value
+        self.sm.update()
+        accel_target = self.sm['longitudinalPlan'].aTarget
+        accel_error = round(accel_target - CS.out.aEgo, 2)
+        accel_adj = accel_error * (1 if accel_target < 0. else 0.)
+        accel_out = accel_target + (accel_adj if abs(accel_error) >= 0.1 else 0)
+        accel_out = clip(accel_out, -3.5, 2.0)
       # go to standstill if desired
       if accel < 0 and CS.out.vEgo <= 0.1:
         # after 6 readings of the same avg wheel tick signal, set standstill
@@ -182,7 +192,7 @@ class CarController():
       # release standstill
       if accel >= 0 and (0.3 >= CS.out.vEgo >= 0):
         starting = 1
-      apply_accel = interp(accel, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
+      apply_accel = interp(accel_out, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
       apply_gas = interp(accel, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
     else:
       apply_gas = clip(actuators.gas, 0., 1.)
