@@ -221,24 +221,24 @@ class CarController():
 
     # Send dashboard UI commands.
     if (frame % 10) == 0:
-      # print('braking:', end=' ')
-      # print(bool(apply_accel < -0.06), end=' ')
-      # print('|', end= ' ')
-      #
-      # print('max_brake:', end=' ')
-      # print(bool(apply_accel == -1.0), end= ' ')
-      # print('|', end= ' ')
-      #
-      # print('accel:', end=' ')
-      # print(round(accel, 2), end = ' ')
-      # print('|', end= ' ')
-      #
-      # print('apply_accel:', end=' ')
-      # print(round(apply_accel, 2), end=' ')
-      # print('|', end= ' ')
-      #
-      # print('stopped:', end=' ')
-      # print(bool(stopped))
+      print('braking:', end=' ')
+      print(bool(apply_accel < -0.06), end=' ')
+      print('|', end= ' ')
+
+      print('accel:', end=' ')
+      print(round(apply_accel, 2), end = ' ')
+      print('|', end= ' ')
+
+      print('gas:', end=' ')
+      print(round(apply_gas, 2), end=' ')
+      print('|', end= ' ')
+
+      print('max_brake:', end=' ')
+      print(bool(apply_accel == -3.5), end= ' ')
+      print('|', end= ' ')
+
+      print('stopped:', end=' ')
+      print(bool(stopped))
 
       idx = (frame//10) % 4
       can_sends.extend(hondacan.create_ui_commands(self.packer, pcm_speed, hud, CS.CP.carFingerprint, CS.is_metric, idx, CS.CP.openpilotLongitudinalControl, CS.stock_hud))

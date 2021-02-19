@@ -51,7 +51,7 @@ def create_acc_commands(packer, enabled, accel, gas, idx, stopped, starting, car
 
   control_on = 5 if enabled else 0
   # no gas = -30000
-  gas_command = gas if enabled and gas > 0 else -30000
+  gas_command = gas if enabled and accel > 0 else -30000
   accel_command = accel if enabled else 0
   braking = 1 if enabled and accel < BOSCH_BRAKE_LIGHT_THRESHOLD else 0
   standstill = 1 if enabled and stopped else 0
