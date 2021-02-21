@@ -84,15 +84,15 @@ class RadarInterface(RadarInterfaceBase):
     self.updated_messages = set()
     self.canErrorCounter = 0
     self.track_id = 0
+    # todo: actually check for these
     self.radar_fault = False
     self.radar_wrong_config = False
     self.radar_off_can = CP.radarOffCan
     self.radar_ts = CP.radarTimeStep
     if self.radar_off_can:
       self.rcp = None
-    elif not self.radar_off_can:
+    else:
       if use_tesla:
-        self.pts = {}
         self.valid_cnt = {key: 0 for key in RADAR_A_MSGS}
         self.rcp = _create_tesla_can_parser(CP.carFingerprint)
         self.radarOffset = float(params.get("TeslaRadarOffset"))
