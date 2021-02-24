@@ -7,6 +7,8 @@ from selfdrive.car.honda.values import HONDA_BOSCH, CAR
 # 2 = ACC-CAN - camera side
 # 3 = F-CAN A - OBDII port
 
+BOSCH_BRAKE_LIGHT_THRESHOLD = -0.06
+
 
 def get_pt_bus(car_fingerprint):
   return 1 if car_fingerprint in HONDA_BOSCH else 0
@@ -44,18 +46,16 @@ def create_brake_command(packer, apply_brake, pump_on, pcm_override, pcm_cancel_
   bus = get_pt_bus(car_fingerprint)
   return packer.make_can_msg("BRAKE_COMMAND", bus, values, idx)
 
-BOSCH_BRAKE_LIGHT_THRESHOLD = -0.06
-def create_acc_commands(packer, enabled, accel, gas, idx, stopped, starting, car_fingerprint):
+def create_acc_commands(packer, enabled, active, accel, gas, idx, stopped, starting, car_fingerprint):
   commands = []
   bus = get_pt_bus(car_fingerprint)
-
-  control_on = 5 if enabled else 0
+  control_on = 5 if active else 0
   # no gas = -30000
-  gas_command = gas if enabled and accel > 0 else -30000
-  accel_command = accel if enabled else 0
-  braking = 1 if enabled and accel < BOSCH_BRAKE_LIGHT_THRESHOLD else 0
-  standstill = 1 if enabled and stopped else 0
-  standstill_release = 1 if enabled and starting else 0
+  gas_command = gas if active and accel >= 0. else -30000
+  accel_command = accel if active else 0.
+  braking = 1 if active and accel < BOSCH_BRAKE_LIGHT_THRESHOLD else 0
+  standstill = 1 if active and stopped else 0
+  standstill_release = 1 if active and starting else 0
 
   acc_control_values = {
     # setting CONTROL_ON causes car to set POWERTRAIN_DATA->ACC_STATUS = 1

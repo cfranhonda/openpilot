@@ -97,7 +97,6 @@ class CarController():
     self.stopped_frame = 0
     self.last_wheeltick = 0
     self.last_wheeltick_ct = 0
-    self.sm = messaging.SubMaster(['controlsState'])
 
     # begin tesla radar
     p = Params()
@@ -118,7 +117,7 @@ class CarController():
 
     self.params = CarControllerParams(CP)
 
-  def update(self, enabled, CS, frame, actuators,
+  def update(self, enabled, active, CS, frame, actuators, aTarget,
              pcm_speed, pcm_override, pcm_cancel_cmd, pcm_accel,
              hud_v_cruise, hud_show_lanes, hud_show_car, hud_alert):
 
@@ -163,13 +162,10 @@ class CarController():
     if CS.CP.carFingerprint in HONDA_BOSCH:
       stopped = 0
       starting = 0
-      # accel = actuators.gas - actuators.brake
       # rouding prevents accel_target from alternating between very small positive and negative value
-      self.sm.update()
-      accel_target = self.sm['controlsState'].aTarget
-      accel_error = round(accel_target - CS.out.aEgo, 2)
-      accel_adj = accel_error * (1 if accel_target < 0. else 0.)
-      accel_out = accel_target + (accel_adj if abs(accel_error) >= 0.1 else 0)
+      accel_error = round(aTarget - CS.out.aEgo, 2)
+      accel_adj = 0 # is this necessary for honda bosch? # accel_error * (1 if aTarget < 0. else 0.)
+      accel_out = aTarget + (accel_adj if abs(accel_error) >= 0.1 else 0)
       apply_accel = clip(accel_out, BOSCH_ACCEL_MIN, BOSCH_ACCEL_MAX)
       # go to standstill if desired
       if apply_accel < 0 and CS.out.vEgo <= 0.1:
@@ -195,9 +191,6 @@ class CarController():
         starting = 1
       # apply_accel = interp(accel_out, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
       apply_gas = interp(actuators.gas, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
-    else:
-      apply_gas = clip(actuators.gas, 0., 1.)
-      apply_brake = int(clip(self.brake_last * P.BRAKE_MAX, 0, P.BRAKE_MAX - 1))
 
     # steer torque is converted back to CAN reference (positive when steering right)
     apply_steer = int(interp(-actuators.steer * P.STEER_MAX, P.STEER_LOOKUP_BP, P.STEER_LOOKUP_V))
@@ -259,7 +252,7 @@ class CarController():
         idx = frame // 2
         ts = frame * DT_CTRL
         if CS.CP.carFingerprint in HONDA_BOSCH:
-          can_sends.extend(hondacan.create_acc_commands(self.packer, enabled, apply_accel, apply_gas, idx, stopped, starting, CS.CP.carFingerprint))
+          can_sends.extend(hondacan.create_acc_commands(self.packer, enabled, active, apply_accel, apply_gas, idx, stopped, starting, CS.CP.carFingerprint))
         else:
           apply_gas = clip(actuators.gas, 0., 1.)
           apply_brake = int(clip(self.brake_last * P.BRAKE_MAX, 0, P.BRAKE_MAX - 1))

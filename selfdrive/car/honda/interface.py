@@ -564,7 +564,7 @@ class CarInterface(CarInterfaceBase):
 
   # pass in a car.CarControl
   # to be called @ 100hz
-  def apply(self, c):
+  def apply(self, c, atarget):
     if c.hudControl.speedVisible:
       hud_v_cruise = c.hudControl.setSpeed * CV.MS_TO_KPH
     else:
@@ -572,8 +572,9 @@ class CarInterface(CarInterfaceBase):
 
     pcm_accel = int(clip(c.cruiseControl.accelOverride, 0, 1) * 0xc6)
 
-    can_sends = self.CC.update(c.enabled, self.CS, self.frame,
+    can_sends = self.CC.update(c.enabled, c.active, self.CS, self.frame,
                                c.actuators,
+                               atarget,
                                c.cruiseControl.speedOverride,
                                c.cruiseControl.override,
                                c.cruiseControl.cancel,
