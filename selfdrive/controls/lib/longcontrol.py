@@ -9,7 +9,7 @@ STOPPING_TARGET_SPEED_OFFSET = 0.01
 STARTING_TARGET_SPEED = 0.5
 BRAKE_THRESHOLD_TO_PID = 0.2
 
-BRAKE_STOPPING_TARGET = 0.5  # apply at least this amount of brake to maintain the vehicle stationary
+BRAKE_STOPPING_TARGET = 1.0 #0.5  # apply at least this amount of brake to maintain the vehicle stationary
 
 RATE = 100.0
 
@@ -58,8 +58,8 @@ class LongControl():
                             rate=RATE,
                             sat_limit=0.8,
                             convert=compute_gb)
-    self.pid_accel = PIController((0, 0.7),
-                            (0, 0),
+    self.pid_accel = PIController(([0, 1], [0.1, 0.1]),
+                            ([0, 1], [0.05, 0.05]),
                             pos_limit=2.0,
                             neg_limit=-3.5,
                             rate=RATE,
@@ -105,7 +105,6 @@ class LongControl():
 
       output_gb = self.pid.update(self.v_pid, v_ego_pid, speed=v_ego_pid, deadzone=deadzone, feedforward=a_target, freeze_integrator=prevent_overshoot)
       self.accel_out = self.pid_accel.update(a_target, CS.aEgo)
-
       if prevent_overshoot:
         output_gb = min(output_gb, 0.0)
 
@@ -123,10 +122,9 @@ class LongControl():
       if output_gb < -0.2:
         output_gb += CP.startingBrakeRate / RATE
       self.reset(CS.vEgo)
-
     self.last_output_gb = output_gb
     final_gas = clip(output_gb, 0., gas_max)
     final_brake = -clip(output_gb, -brake_max, 0.)
-    final_accel = self.accel_out
+    final_accel = a_target # self.accel_out
 
     return final_gas, final_brake, final_accel

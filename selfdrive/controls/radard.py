@@ -88,7 +88,7 @@ def get_lead(v_ego, ready, clusters, lead_msg, low_speed_override=True):
 class RadarD():
   def __init__(self, radar_ts, delay=0):
     self.current_time = 0
-
+    self.last_time = 0
     self.tracks = defaultdict(dict)
     self.kalman_params = KalmanParams(radar_ts)
 
@@ -100,6 +100,8 @@ class RadarD():
 
   def update(self, sm, rr, enable_lead):
     self.current_time = 1e-9*max(sm.logMonoTime.values())
+    #print(round((self.current_time - self.last_time), 6))
+    self.last_time = self.current_time
 
     if sm.updated['carState']:
       self.v_ego = sm['carState'].vEgo

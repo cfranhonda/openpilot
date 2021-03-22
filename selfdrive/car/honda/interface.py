@@ -137,7 +137,7 @@ class CarInterface(CarInterfaceBase):
       useTeslaRadar = params.get("TeslaRadarActivate", encoding='utf8') == "1"
       ret.openpilotLongitudinalControl = useVisionRadar or useTeslaRadar
       ret.radarOffCan = not useTeslaRadar
-      ret.radarTimeStep = 0.06 if useTeslaRadar else 0.05
+      ret.radarTimeStep = 0.09 if useTeslaRadar else 0.05
       ret.enableCruise = not ret.openpilotLongitudinalControl
       ret.communityFeature = ret.openpilotLongitudinalControl
       if ret.openpilotLongitudinalControl:
@@ -158,8 +158,10 @@ class CarInterface(CarInterfaceBase):
       ret.transmissionType = TransmissionType.cvt
 
     cloudlog.warning("ECU Camera Simulated: %r", ret.enableCamera)
-    cloudlog.warning("ECU Radar Simulated: %r", ret.openpilotLongitudinalControl)
     cloudlog.warning("ECU Gas Interceptor: %r", ret.enableGasInterceptor)
+
+    if candidate in HONDA_BOSCH:
+      cloudlog.warning("ECU Honda Bosch Radar Simulated: %r", ret.openpilotLongitudinalControl)
 
     # Certain Hondas have an extra steering sensor at the bottom of the steering rack,
     # which improves controls quality as it removes the steering column torsion from feedback.
@@ -169,7 +171,7 @@ class CarInterface(CarInterfaceBase):
     ret.lateralTuning.pid.kiBP, ret.lateralTuning.pid.kpBP = [[0.], [0.]]
     ret.lateralTuning.pid.kf = 0.00006  # conservative feed-forward
 
-    eps_modified = False
+    eps_modified = True
     for fw in car_fw:
       if fw.ecu == "eps" and b"," in fw.fwVersion:
         eps_modified = True
@@ -218,10 +220,17 @@ class CarInterface(CarInterfaceBase):
         ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 2564], [0, 2564]]
         ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.8], [0.24]]
       tire_stiffness_factor = 1.
-      ret.longitudinalTuning.kpBP = [0., 5., 35.]
-      ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
-      ret.longitudinalTuning.kiBP = [0., 35.]
-      ret.longitudinalTuning.kiV = [0.18, 0.12]
+      # tesla radar runs radard at about 10 hz. compensate for this here
+      if useTeslaRadar:
+        ret.longitudinalTuning.kpBP = [0., 5., 35.]
+        ret.longitudinalTuning.kpV = [2.0, 1.2, 0.6]
+        ret.longitudinalTuning.kiBP = [0., 35.]
+        ret.longitudinalTuning.kiV = [0.15, 0.05]
+      else:
+        ret.longitudinalTuning.kpBP = [0., 5., 35.]
+        ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
+        ret.longitudinalTuning.kiBP = [0., 35.]
+        ret.longitudinalTuning.kiV = [0.18, 0.12]
 
     elif candidate in (CAR.ACCORD, CAR.ACCORDH):
       stop_and_go = True
@@ -456,11 +465,15 @@ class CarInterface(CarInterfaceBase):
       ret.gasMaxV = [0.6]
       ret.brakeMaxBP = [0.]  # m/s
       ret.brakeMaxV = [1.]   # max brake allowed
+      ret.startAccel = 0.3
+      ret.longitudinalTuning.deadzoneBP = [0., 8.05]
+      ret.longitudinalTuning.deadzoneV = [.0, .14]
     else:
       ret.gasMaxBP = [0.]  # m/s
       ret.gasMaxV = [0.6] if ret.enableGasInterceptor else [0.]  # max gas allowed
       ret.brakeMaxBP = [5., 20.]  # m/s
       ret.brakeMaxV = [1., 0.8]   # max brake allowed
+      ret.startAccel = 0.5
 
     ret.startAccel = 0.5
     ret.stoppingControl = True

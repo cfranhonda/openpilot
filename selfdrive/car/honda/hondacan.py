@@ -7,7 +7,7 @@ from selfdrive.car.honda.values import HONDA_BOSCH, CAR
 # 2 = ACC-CAN - camera side
 # 3 = F-CAN A - OBDII port
 
-BOSCH_BRAKE_LIGHT_THRESHOLD = -0.06
+BOSCH_BRAKE_LIGHT_THRESHOLD = -0.1
 
 
 def get_pt_bus(car_fingerprint):
@@ -49,11 +49,11 @@ def create_brake_command(packer, apply_brake, pump_on, pcm_override, pcm_cancel_
 def create_acc_commands(packer, enabled, active, accel, gas, idx, stopped, starting, car_fingerprint):
   commands = []
   bus = get_pt_bus(car_fingerprint)
-  control_on = 5 if active else 0
+  control_on = 5 if enabled else 0
   # no gas = -30000
-  gas_command = gas if active and accel >= 0. else -30000
+  gas_command = gas if active and accel >= -0.0 else -30000
   accel_command = accel if active else 0.
-  braking = 1 if active and accel < BOSCH_BRAKE_LIGHT_THRESHOLD else 0
+  braking = 1 if active and accel <= BOSCH_BRAKE_LIGHT_THRESHOLD else 0
   standstill = 1 if active and stopped else 0
   standstill_release = 1 if active and starting else 0
 
@@ -117,12 +117,12 @@ def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, is_metric, idx, 
         'HUD_LEAD': hud.car,
         'HUD_DISTANCE': 3,
         'ACC_ON': hud.car != 0,
-        'SET_TO_X1': 1,
+        #'SET_TO_X1': 1,
         'IMPERIAL_UNIT': int(not is_metric),
         # TODO: which bits are for the indicator, hud nag, etc.
-        'FCM_OFF_1': 1,
-        'FCM_OFF_2': 1,
-        'FCM_OFF_3': 1,
+        'FCM_OFF_1': 1, # nag part 1/2
+        'FCM_OFF_2': 1 if not hud.car else 0, # nag part 2/2
+        'FCM_OFF_3': 1,  #hud icon
       }
     else:
       acc_hud_values = {
@@ -154,7 +154,6 @@ def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, is_metric, idx, 
   if radar_disabled and car_fingerprint in HONDA_BOSCH:
     radar_hud_values = {
       'SET_TO_1': 0x01,
-      'CMBS_OFF': 1,
     }
     commands.append(packer.make_can_msg('RADAR_HUD', bus_pt, radar_hud_values, idx))
 

@@ -15,8 +15,8 @@ VisualAlert = car.CarControl.HUDControl.VisualAlert
 
 BOSCH_ACCEL_MAX = 2.0
 BOSCH_ACCEL_MIN = -3.5
-# BOSCH_ACCEL_LOOKUP_BP = [-1., 0., 0.6]
-# BOSCH_ACCEL_LOOKUP_V = [-3.5, 0., 2.]
+BOSCH_ACCEL_LOOKUP_BP = [-1., 0., 0.6]
+BOSCH_ACCEL_LOOKUP_V = [-3.5, 0., 2.]
 BOSCH_GAS_LOOKUP_BP = [0., 0.6]
 BOSCH_GAS_LOOKUP_V = [0, 2000]
 
@@ -158,17 +158,21 @@ class CarController():
                   hud_lanes, fcw_display, acc_alert, steer_required)
 
     # **** process the car messages ****
-
+    # todo: should we move this down to the 50hz section?
     if CS.CP.carFingerprint in HONDA_BOSCH:
       stopped = 0
       starting = 0
+      gas = actuators.gas
+      brake = actuators.brake
       # rouding prevents accel_target from alternating between very small positive and negative value
-      accel_error = round(aTarget - CS.out.aEgo, 2)
-      accel_adj = 0 # is this necessary for honda bosch? # accel_error * (1 if aTarget < 0. else 0.)
-      accel_out = aTarget + (accel_adj if abs(accel_error) >= 0.1 else 0)
-      apply_accel = clip(accel_out, BOSCH_ACCEL_MIN, BOSCH_ACCEL_MAX)
+      #accel_error = round(aTarget - CS.out.aEgo, 2)
+      #accel_adj = accel_error * (1 if aTarget <= 0. else 0.)
+      #accel_out = aTarget + (accel_adj if abs(accel_error) >= 0. else 0)
+      #apply_accel = clip(accel_out, BOSCH_ACCEL_MIN, BOSCH_ACCEL_MAX)
+
       # go to standstill if desired
-      if apply_accel < 0 and CS.out.vEgo <= 0.1:
+      if brake > 0. and CS.out.vEgo <= 0.1:
+        #print('standstill')
         # after 6 readings of the same avg wheel tick signal, set standstill
         if CS.avg_wheelTick == self.last_wheeltick:
           self.last_wheeltick_ct += 1
@@ -180,17 +184,29 @@ class CarController():
             stopped = 1
             # go to full brake after 1 second of standstill
             if (frame - self.stopped_frame) >= 100:
-              apply_accel = BOSCH_ACCEL_MIN
+              brake = 1.0
         # wheeltick changed since last loop. no standstill
         else:
           self.last_wheeltick = CS.avg_wheelTick
           self.last_wheeltick_ct = 0
           self.stopped_frame = 0
       # release standstill
-      if apply_accel >= 0 and (0.3 >= CS.out.vEgo >= 0):
+      if gas >= 0. and (0.5 >= CS.out.vEgo >= 0):
         starting = 1
-      # apply_accel = interp(accel_out, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
-      apply_gas = interp(actuators.gas, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
+
+      # finalize the values
+      if gas:
+        # accelerate with gas_command like a pedal. apply_accel handles the transmission
+        apply_gas = interp(gas, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
+        apply_accel = clip(aTarget, 0.0, BOSCH_ACCEL_MAX) if aTarget >= 0.0 else 0
+      elif brake:
+        # apply brakes with output_gb's pid loop. send inactive gas_command and no positive accel
+        apply_gas = 0
+        apply_accel = interp(-brake, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
+      else:
+        # we shouldn't end up here
+        apply_gas = 0
+        apply_accel = 0
 
     # steer torque is converted back to CAN reference (positive when steering right)
     apply_steer = int(interp(-actuators.steer * P.STEER_MAX, P.STEER_LOOKUP_BP, P.STEER_LOOKUP_V))
@@ -212,26 +228,28 @@ class CarController():
     can_sends.append(hondacan.create_steering_control(self.packer, apply_steer,
       lkas_active, CS.CP.carFingerprint, idx, CS.CP.openpilotLongitudinalControl))
 
+    prints = True
     # Send dashboard UI commands.
     if (frame % 10) == 0:
-      print('braking:', end=' ')
-      print(bool(apply_accel < -0.06), end=' ')
-      print('|', end= ' ')
+      if prints:
+        print('braking:', end=' ')
+        print(bool(apply_accel < -0.06), end=' ')
+        print('|', end= ' ')
 
-      print('accel:', end=' ')
-      print(round(apply_accel, 2), end = ' ')
-      print('|', end= ' ')
+        print('accel:', end=' ')
+        print(round(apply_accel, 2), end = ' ')
+        print('|', end= ' ')
 
-      print('gas:', end=' ')
-      print(round(apply_gas, 2), end=' ')
-      print('|', end= ' ')
+        print('gas:', end=' ')
+        print(round(apply_gas, 2), end=' ')
+        print('|', end= ' ')
 
-      print('max_brake:', end=' ')
-      print(bool(apply_accel == -3.5), end= ' ')
-      print('|', end= ' ')
+        print('actuators:', end=' ')
+        print(round((actuators.gas - actuators.brake), 2), end=' ')
+        print('|', end =' ')
 
-      print('stopped:', end=' ')
-      print(bool(stopped))
+        print('aEgo error', end =' ')
+        print(round(aTarget - CS.out.aEgo, 3))
 
       idx = (frame//10) % 4
       can_sends.extend(hondacan.create_ui_commands(self.packer, pcm_speed, hud, CS.CP.carFingerprint, CS.is_metric, idx, CS.CP.openpilotLongitudinalControl, CS.stock_hud))

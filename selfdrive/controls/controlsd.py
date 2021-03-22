@@ -505,6 +505,7 @@ class Controls:
 
     CC = car.CarControl.new_message()
     CC.enabled = self.enabled
+    CC.active = self.active
     CC.actuators = actuators
 
     CC.cruiseControl.override = True
