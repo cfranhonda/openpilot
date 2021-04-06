@@ -71,7 +71,16 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                    "In this mode openpilot will ignore lanelines and just drive how it thinks a human would.",
                                    "../assets/offroad/icon_road.png",
                                    this));
-
+  toggles.append(new ParamControl("VisionRadarToggle",
+                                  "Enable Vision Radar",
+                                  "Use comma vision as the radar for vehicle detection.",
+                                  "../assets/offroad/icon_road.png"
+                                  this));
+  toggles.append(new ParamControl("TeslaRadarActivate",
+                                  "Enable Tesla Radar",
+                                  "Use Tesla Radar for vehicle detection.",
+                                  "../assets/offroad/icon_road.png"
+                                  this));
   if (Hardware::TICI()) {
     toggles.append(new ParamControl("EnableWideCamera",
                                     "Enable use of Wide Angle Camera",
