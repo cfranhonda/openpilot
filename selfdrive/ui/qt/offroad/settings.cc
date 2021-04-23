@@ -74,12 +74,12 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
   toggles.append(new ParamControl("VisionRadarToggle",
                                   "Enable Vision Radar",
                                   "Use comma vision as the radar for vehicle detection.",
-                                  "../assets/offroad/icon_road.png"
+                                  "../assets/offroad/icon_road.png",
                                   this));
   toggles.append(new ParamControl("TeslaRadarActivate",
                                   "Enable Tesla Radar",
                                   "Use Tesla Radar for vehicle detection.",
-                                  "../assets/offroad/icon_road.png"
+                                  "../assets/offroad/icon_road.png",
                                   this));
   if (Hardware::TICI()) {
     toggles.append(new ParamControl("EnableWideCamera",
