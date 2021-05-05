@@ -24,7 +24,7 @@ BOSCH_LONG_FLAG = 2
 def compute_gb_honda_bosch(accel, speed):
   creep_brake = 0.0
   creep_speed = 2.3
-  creep_brake_value = 0.1 #maybe play with this for slow moving bumper to bumper traffic
+  creep_brake_value = 0.15 #maybe play with this for slow moving bumper to bumper traffic
   if speed < creep_speed:
     creep_brake = (creep_speed - speed) / creep_speed * creep_brake_value
   return float(accel) / 4.8 - creep_brake
@@ -215,7 +215,7 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kpBP = [0., 2.7, 5.5, 11.1, 27.7, 36.1] # 6, 12, 25, 60, 80 mph
       ret.longitudinalTuning.kpV = [1.2, 1.05, 0.85, 0.75, 0.55, 0.45]
       ret.longitudinalTuning.kiBP = [0., 36.1]
-      ret.longitudinalTuning.kiV  = [0.16, 0.1]
+      ret.longitudinalTuning.kiV  = [0.18, 0.12]
       ret.longitudinalTuning.deadzoneBP = [0., 5.5]
       ret.longitudinalTuning.deadzoneV = [.0, .025] #trying to create a little more "give"
       #ret.longitudinalTuning.kpBP = [0., 5., 35.]
