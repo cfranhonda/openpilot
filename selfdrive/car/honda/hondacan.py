@@ -66,6 +66,7 @@ def create_acc_commands(packer, enabled, active, accel, gas, idx, stopped, start
     "BRAKE_REQUEST": braking,
     "STANDSTILL": standstill,
     "STANDSTILL_RELEASE": standstill_release,
+    "CMBS_OFF": 1,  # for no AEB
   }
   commands.append(packer.make_can_msg("ACC_CONTROL", bus, acc_control_values, idx))
 
@@ -117,12 +118,12 @@ def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, is_metric, idx, 
         'HUD_LEAD': hud.car,
         'HUD_DISTANCE': 3,
         'ACC_ON': hud.car != 0,
-        #'SET_TO_X1': 1,
+        'SET_TO_X1': 1,
         'IMPERIAL_UNIT': int(not is_metric),
         # TODO: which bits are for the indicator, hud nag, etc.
-        'FCM_OFF_1': 1, # nag part 1/2
-        'FCM_OFF_2': 1 if not hud.car else 0, # nag part 2/2
-        'FCM_OFF_3': 1,  #hud icon
+        'FCM_OFF_1': 1,  # nag part 1/2
+        'FCM_OFF_2': 1,  # nag part 2/2
+        'FCM_OFF_3': 1,  # small hud icon
       }
     else:
       acc_hud_values = {
@@ -153,7 +154,8 @@ def create_ui_commands(packer, pcm_speed, hud, car_fingerprint, is_metric, idx, 
 
   if radar_disabled and car_fingerprint in HONDA_BOSCH:
     radar_hud_values = {
-      'SET_TO_1': 0x01,
+      'SET_TO_1': 0x01,  # this is the cmbs_off state for CIVIC_BOSCH
+      'CMBS_OFF': 1,  # this is always set on CIVIC_BOSCH. i think this is used as the cmbs state on accord
     }
     commands.append(packer.make_can_msg('RADAR_HUD', bus_pt, radar_hud_values, idx))
 
