@@ -125,7 +125,6 @@ class CarController():
 
     # **** process the car messages ****
 
-
     # steer torque is converted back to CAN reference (positive when steering right)
     apply_steer = int(interp(-actuators.steer * P.STEER_MAX, P.STEER_LOOKUP_BP, P.STEER_LOOKUP_V))
 
@@ -175,3 +174,4 @@ class CarController():
             can_sends.append(create_gas_command(self.packer, apply_gas, idx))
 
     return can_sends
+
