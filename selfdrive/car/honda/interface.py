@@ -213,11 +213,11 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 1.
     
       ret.longitudinalTuning.deadzoneBP = [0., 40.]
-      ret.longitudinalTuning.deadzoneV = [.0, .02] #trying to create a little more "give"
+      ret.longitudinalTuning.deadzoneV = [.0, .0] #trying to create a little more "give"
       ret.longitudinalTuning.kpBP = [0., 10., 40.]
       ret.longitudinalTuning.kpV = [1.2, 0.6, 0.2]
       ret.longitudinalTuning.kiBP = [0., 10., 30., 40.]
-      ret.longitudinalTuning.kiV = [0.05, 0.02, 0.01, 0.005]
+      ret.longitudinalTuning.kiV = [0.1, 0.04, 0.02, 0.01]
 
     elif candidate in (CAR.ACCORD, CAR.ACCORD_15, CAR.ACCORDH):
       stop_and_go = True
