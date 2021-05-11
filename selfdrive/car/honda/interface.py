@@ -212,16 +212,12 @@ class CarInterface(CarInterfaceBase):
         ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.8], [0.24]]
       tire_stiffness_factor = 1.
     
-      ret.longitudinalTuning.kpBP = [0., 2.7, 5.5, 11.1, 27.7, 36.1] # 6, 12, 25, 60, 80 mph
-      ret.longitudinalTuning.kpV = [1.2, 1.05, 0.85, 0.75, 0.55, 0.45]
-      ret.longitudinalTuning.kiBP = [0., 36.1]
-      ret.longitudinalTuning.kiV  = [0.18, 0.12]
-      ret.longitudinalTuning.deadzoneBP = [0., 5.5]
-      ret.longitudinalTuning.deadzoneV = [.0, .025] #trying to create a little more "give"
-      #ret.longitudinalTuning.kpBP = [0., 5., 35.]
-      #ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
-      #ret.longitudinalTuning.kiBP = [0., 35.]
-      #ret.longitudinalTuning.kiV = [0.18, 0.12]
+      ret.longitudinalTuning.deadzoneBP = [0., 40.]
+      ret.longitudinalTuning.deadzoneV = [.0, .02] #trying to create a little more "give"
+      #ret.longitudinalTuning.kpBP = [0., 10., 40.]
+      #ret.longitudinalTuning.kpV = [1.2, 0.6, 0.2]
+      #ret.longitudinalTuning.kiBP = [0., 10., 30., 40.]
+      #ret.longitudinalTuning.kiV = [0.05, 0.02, 0.01, 0.005]
 
     elif candidate in (CAR.ACCORD, CAR.ACCORD_15, CAR.ACCORDH):
       stop_and_go = True
@@ -455,8 +451,8 @@ class CarInterface(CarInterfaceBase):
     if candidate in HONDA_BOSCH:
       ret.gasMaxBP = [0., 2.7, 5.5, 11.1, 36.1] #6, 12, 25, 60, 80 mph stolen from Hyundai
       ret.gasMaxV = [0.35, 0.28, 0.23, 0.15, 0.1]
-      ret.brakeMaxBP = [0.]  # m/s
-      ret.brakeMaxV = [1.]   # max brake allowed
+      ret.brakeMaxBP = [0., 20.]  # m/s
+      ret.brakeMaxV = [1., 0.8]   # max brake allowed
     else:
       ret.gasMaxBP = [0.]  # m/s
       ret.gasMaxV = [0.6] if ret.enableGasInterceptor else [0.]  # max gas allowed
