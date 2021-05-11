@@ -217,7 +217,7 @@ class CarInterface(CarInterfaceBase):
       ret.longitudinalTuning.kpBP = [0., 10., 40.]
       ret.longitudinalTuning.kpV = [1.2, 0.6, 0.2]
       ret.longitudinalTuning.kiBP = [0., 10., 30., 40.]
-      ret.longitudinalTuning.kiV = [0.1, 0.04, 0.02, 0.01]
+      ret.longitudinalTuning.kiV = [0.15, 0.06, 0.03, 0.015]
 
     elif candidate in (CAR.ACCORD, CAR.ACCORD_15, CAR.ACCORDH):
       stop_and_go = True
