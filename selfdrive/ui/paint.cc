@@ -164,8 +164,10 @@ static void ui_draw_vision_lane_lines(UIState *s) {
     track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
                                           COLOR_WHITE, COLOR_WHITE_ALPHA(0));
   } else {
+    const NVGcolor color = bg_colors[s->status];
+    const NVGcolor color_alpha = bg_colors_alpha[s->status];
     track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
-                                          COLOR_RED, COLOR_RED_ALPHA(0));
+                                          color, color_alpha);
   }
   // paint path
   ui_draw_line(s, scene.track_vertices, nullptr, &track_bg);
@@ -200,10 +202,10 @@ static void ui_draw_vision_maxspeed(UIState *s) {
 
   const Rect rect = {s->viz_rect.x + (bdr_s * 2), int(s->viz_rect.y + (bdr_s * 1.5)), 184, 202};
   ui_fill_rect(s->vg, rect, COLOR_BLACK_ALPHA(100), 30.);
-  ui_draw_rect(s->vg, rect, COLOR_WHITE_ALPHA(100), 10, 20.);
+  ui_draw_rect(s->vg, rect, COLOR_WHITE, 10, 20.);
 
   nvgTextAlign(s->vg, NVG_ALIGN_CENTER | NVG_ALIGN_BASELINE);
-  ui_draw_text(s, rect.centerX(), 148, "MAX", 26 * 2.5, COLOR_WHITE_ALPHA(is_cruise_set ? 200 : 100), "sans-regular");
+  ui_draw_text(s, rect.centerX(), 148, "SET", 26 * 2.5, COLOR_WHITE, "sans-regular");
   if (is_cruise_set) {
     const std::string maxspeed_str = std::to_string((int)std::nearbyint(maxspeed));
     ui_draw_text(s, rect.centerX(), 242, maxspeed_str.c_str(), 48 * 2.5, COLOR_WHITE, "sans-bold");
