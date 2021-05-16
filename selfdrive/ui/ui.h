@@ -62,6 +62,18 @@ static std::map<UIStatus, NVGcolor> bg_colors = {
   {STATUS_ALERT, nvgRGBA(0xC9, 0x22, 0x31, 0xf1)},
 };
 
+static std::map<UIStatus, NVGcolor> bg_colors_alpha = {
+#ifdef QCOM
+  {STATUS_OFFROAD, nvgRGBA(0x07, 0x23, 0x39, 0)},
+#else
+  {STATUS_OFFROAD, nvgRGBA(0x0, 0x0, 0x0, 0)},
+#endif
+  {STATUS_DISENGAGED, nvgRGBA(0x17, 0x33, 0x49, 0)},
+  {STATUS_ENGAGED, nvgRGBA(0x17, 0x86, 0x44, 0)},
+  {STATUS_WARNING, nvgRGBA(0xDA, 0x6F, 0x25, 0)},
+  {STATUS_ALERT, nvgRGBA(0xC9, 0x22, 0x31, 0)},
+};
+
 typedef struct {
   float x, y;
 } vertex_data;
