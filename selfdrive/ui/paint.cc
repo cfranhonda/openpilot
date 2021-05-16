@@ -164,10 +164,8 @@ static void ui_draw_vision_lane_lines(UIState *s) {
     track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
                                           COLOR_WHITE, COLOR_WHITE_ALPHA(0));
   } else {
-    const NVGcolor color = bg_colors[s->status];
-    const NVGcolor color_alpha = bg_colors_alpha[s->status];
     track_bg = nvgLinearGradient(s->vg, s->fb_w, s->fb_h, s->fb_w, s->fb_h * .4,
-                                          color, color_alpha);
+                                          COLOR_RED, COLOR_RED_ALPHA(0));
   }
   // paint path
   ui_draw_line(s, scene.track_vertices, nullptr, &track_bg);
