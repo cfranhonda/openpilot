@@ -84,9 +84,6 @@ class CarController():
     self.last_pump_ts = 0.
     self.packer = CANPacker(dbc_name)
     self.new_radar_config = False
-    self.stopped_frame = 0
-    self.last_wheeltick = 0
-    self.last_wheeltick_ct = 0
 
     self.params = CarControllerParams(CP)
 
