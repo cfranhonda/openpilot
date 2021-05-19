@@ -104,10 +104,10 @@ def get_can_signals(CP, gearbox_msg="GEARBOX"):
       ("WHEEL_TICK_RR", "WHEEL_TICKS", 0)
     ]
     checks += [
-      ("ACC_HUD", 10),
+      ("ACC_HUD", 0),
       ("EPB_STATUS", 50),
       ("GAS_PEDAL_2", 100),
-      ("ACC_CONTROL", 50),
+      ("ACC_CONTROL", 0),
       ("WHEEL_TICKS", 50),
     ]
 
