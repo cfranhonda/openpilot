@@ -126,7 +126,7 @@ class RadarInterface(RadarInterfaceBase):
 
   def _update(self, updated_messages):
     ret = car.RadarData.new_message()
-    for message in updated_messages:
+    for message in sorted(updated_messages):
       if not(message in RADAR_A_MSGS):
         if message in self.pts:
           del self.pts[message]

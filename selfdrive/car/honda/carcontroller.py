@@ -196,13 +196,13 @@ class CarController():
 
       # finalize the values
       if gas:
-        # accelerate with gas_command like a pedal. apply_accel handles the transmission
+        # accelerate like a pedal. ACCEL_COMMAND doesn't seem to do anything here on civic bosch. maybe used with hybrid/electric?
         apply_gas = interp(gas, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
-        apply_accel = clip(aTarget, 0.0, BOSCH_ACCEL_MAX) if aTarget >= 0.0 else 0
+        apply_accel = clip(aTarget, 0.0, BOSCH_ACCEL_MAX) if aTarget >= 0.0 else 0 # TODO: modify for engine braking while ramping down the gas
       elif brake:
-        # apply brakes with output_gb's pid loop. send inactive gas_command and no positive accel
-        apply_gas = 0
-        apply_accel = interp(-brake, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
+        # use accel from the PIF loop.
+        apply_gas = 35 # experimental for engine braking
+        apply_accel = clip((-brake * 5.0), BOSCH_ACCEL_MIN, 0.0) #  undo the compute_gb_honda_bosch calculation here
       else:
         # we shouldn't end up here
         apply_gas = 0
