@@ -108,6 +108,7 @@ def get_can_signals(CP, gearbox_msg="GEARBOX"):
       ("EPB_STATUS", 50),
       ("GAS_PEDAL_2", 100),
       ("ACC_CONTROL", 50),
+      ("WHEEL_TICKS", 50),
     ]
 
     if CP.openpilotLongitudinalControl:
