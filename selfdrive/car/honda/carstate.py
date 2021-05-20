@@ -97,24 +97,28 @@ def get_can_signals(CP, gearbox_msg="GEARBOX"):
       ("CRUISE_SPEED", "ACC_HUD", 0),
       ("ACCEL_COMMAND", "ACC_CONTROL", 0),
       ("AEB_STATUS", "ACC_CONTROL", 0),
-    # needed for longitundinal control
       ("WHEEL_TICK_FL", "WHEEL_TICKS", 0),
       ("WHEEL_TICK_FR", "WHEEL_TICKS", 0),
       ("WHEEL_TICK_RL", "WHEEL_TICKS", 0),
       ("WHEEL_TICK_RR", "WHEEL_TICKS", 0)
     ]
     checks += [
-      ("ACC_HUD", 0),
       ("EPB_STATUS", 50),
       ("GAS_PEDAL_2", 100),
-      ("ACC_CONTROL", 0),
       ("WHEEL_TICKS", 50),
     ]
 
     if CP.openpilotLongitudinalControl:
       signals += [("BRAKE_ERROR_1", "STANDSTILL", 1),
                   ("BRAKE_ERROR_2", "STANDSTILL", 1)]
-      checks += [("STANDSTILL", 50)]
+      # disable these checks. should factor out reading the signals in CarState.update
+      checks += [("STANDSTILL", 50),
+                 ("ACC_HUD", 0),
+                 ("ACC_CONTROL", 0)]
+    else:
+      checks += [("ACC_HUD", 10),
+                 ("ACC_CONTROL", 50)]
+
   else:
     # Nidec signals.
     signals += [("BRAKE_ERROR_1", "STANDSTILL", 1),
