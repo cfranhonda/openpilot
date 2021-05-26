@@ -212,12 +212,14 @@ class CarInterface(CarInterfaceBase):
         ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.8], [0.24]]
       tire_stiffness_factor = 1.
     
-      ret.longitudinalTuning.deadzoneBP = [0., 40.]
-      ret.longitudinalTuning.deadzoneV = [.0, .0] #trying to create a little more "give"
-      ret.longitudinalTuning.kpBP = [0., 10., 40.]
-      ret.longitudinalTuning.kpV = [1.2, 0.6, 0.2]
-      ret.longitudinalTuning.kiBP = [0., 10., 30., 40.]
-      ret.longitudinalTuning.kiV = [0.15, 0.06, 0.03, 0.015]
+      ret.longitudinalTuning.kpBP = [0., .3, 10., 35.] #taken from an xps fork that i saw and adapted closer to Bosch numbers
+      ret.longitudinalTuning.kpV = [1.2, 0.8, 0.55, 0.2] #it could totally suck so be careful.
+      ret.longitudinalTuning.kiBP = [0., .3, 15., 35.] #stock tuning is below - which isn't much better lol
+      ret.longitudinalTuning.kiV = [0.15, 0.10, 0.05, 0.045]
+      #ret.longitudinalTuning.kpBP = [0., 5., 35.]
+      #ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
+      #ret.longitudinalTuning.kiBP = [0., 35.]
+      #ret.longitudinalTuning.kiV = [0.18, 0.12]
 
     elif candidate in (CAR.ACCORD, CAR.ACCORD_15, CAR.ACCORDH):
       stop_and_go = True
@@ -460,9 +462,9 @@ class CarInterface(CarInterfaceBase):
       ret.brakeMaxV = [1., 0.8]   # max brake allowed
 
     ret.stoppingControl = True
-    ret.stoppingBrakeRate = 0.1  # brake_travel/s while trying to stop
+    ret.stoppingBrakeRate = 0.2  # brake_travel/s while trying to stop
     ret.startingBrakeRate = 2.0  # brake_travel/s while releasing on restart
-    ret.startAccel = 1.0
+    ret.startAccel = 0.5
 
     ret.steerActuatorDelay = 0.1
     ret.steerRateCost = 0.5
