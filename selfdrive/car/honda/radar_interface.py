@@ -170,7 +170,7 @@ class RadarInterface(RadarInterfaceBase):
             self.trackId = 1
         if message in self.pts:
           self.pts[message].dRel = cpt['LongDist']  # from front of car
-          self.pts[message].yRel = cpt['LatDist'] #- self.radarOffset  # in car frame's y axis, left is positive
+          self.pts[message].yRel = cpt['LatDist'] + self.radarOffset  # in car frame's y axis, left is positive.
           self.pts[message].vRel = cpt['LongSpeed']
           self.pts[message].aRel = cpt['LongAccel']
           self.pts[message].yvRel = cpt2['LatSpeed']

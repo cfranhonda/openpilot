@@ -184,7 +184,7 @@ class CarController():
             stopped = 1
             # go to full brake after 1 second of standstill
             if (frame - self.stopped_frame) >= 100:
-              brake = 1.0
+              brake = 3.5 / 7.0 # todo: fix this hack 
         # wheeltick changed since last loop. no standstill
         else:
           self.last_wheeltick = CS.avg_wheelTick
@@ -201,8 +201,8 @@ class CarController():
         apply_accel = clip(aTarget, 0.0, BOSCH_ACCEL_MAX) if aTarget >= 0.0 else 0 # TODO: modify for engine braking while ramping down the gas
       elif brake:
         # use accel from the PIF loop.
-        apply_gas = 35 # experimental for engine braking
-        apply_accel = clip((-brake * 5.0), BOSCH_ACCEL_MIN, 0.0) #  undo the compute_gb_honda_bosch calculation here
+        apply_gas = -30000
+        apply_accel = clip((-brake * 7.0), BOSCH_ACCEL_MIN, 0.0) #  undo the compute_gb_honda_bosch calculation here
       else:
         # we shouldn't end up here
         apply_gas = 0
@@ -233,7 +233,7 @@ class CarController():
     if (frame % 10) == 0:
       if prints:
         print('braking:', end=' ')
-        print(bool(apply_accel < -0.06), end=' ')
+        print(bool(apply_accel <= -0.1), end=' ')
         print('|', end= ' ')
 
         print('accel:', end=' ')

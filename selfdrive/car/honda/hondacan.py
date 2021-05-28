@@ -7,7 +7,7 @@ from selfdrive.car.honda.values import HONDA_BOSCH, CAR
 # 2 = ACC-CAN - camera side
 # 3 = F-CAN A - OBDII port
 
-BOSCH_BRAKE_LIGHT_THRESHOLD = -0.35
+BOSCH_BRAKE_LIGHT_THRESHOLD = -0.1
 
 
 def get_pt_bus(car_fingerprint):

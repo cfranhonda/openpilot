@@ -20,7 +20,7 @@ ALT_BRAKE_FLAG = 1
 BOSCH_LONG_FLAG = 2
 
 def compute_gb_honda_bosch(accel, speed):
-  return float(accel) / 5.0
+  return float(accel) / 7.0
 
 def compute_gb_honda_nidec(accel, speed):
   creep_brake = 0.0
@@ -223,9 +223,9 @@ class CarInterface(CarInterfaceBase):
       # tesla radar runs radard at about 10 hz. compensate for this here
       if useTeslaRadar:
         ret.longitudinalTuning.kpBP = [0., 5., 35.]
-        ret.longitudinalTuning.kpV = [2.0, 1.2, 0.6]
+        ret.longitudinalTuning.kpV = [0.8, 0.8, 0.8]
         ret.longitudinalTuning.kiBP = [0., 35.]
-        ret.longitudinalTuning.kiV = [0.12, 0.03]
+        ret.longitudinalTuning.kiV = [0.10, 0.05]
       else:
         ret.longitudinalTuning.kpBP = [0., 5., 35.]
         ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
@@ -463,11 +463,11 @@ class CarInterface(CarInterfaceBase):
     if candidate in HONDA_BOSCH:
       ret.gasMaxBP = [0.]   # m/s
       ret.gasMaxV = [0.6]
-      ret.brakeMaxBP = [0.]  # m/s
-      ret.brakeMaxV = [1.]   # max brake allowed
-      ret.startAccel = 0.3
+      ret.brakeMaxBP = [5., 20.]  # m/s
+      ret.brakeMaxV = [1., 0.8]   # max brake allowed
+      ret.startAccel = 0.25
       ret.longitudinalTuning.deadzoneBP = [0., 8.05]
-      ret.longitudinalTuning.deadzoneV = [.0, .14]
+      ret.longitudinalTuning.deadzoneV = [.0, .10]
     else:
       ret.gasMaxBP = [0.]  # m/s
       ret.gasMaxV = [0.6] if ret.enableGasInterceptor else [0.]  # max gas allowed
