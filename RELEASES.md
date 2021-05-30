@@ -1,4 +1,3 @@
- -Added NEOS 17 for bootloop fix errors
 Version 0.8.4 (2021-05-17)
 ========================
  * Delay controls start until system is ready
