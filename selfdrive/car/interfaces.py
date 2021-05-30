@@ -123,9 +123,11 @@ class CarInterfaceBase():
     if cs_out.cruiseState.nonAdaptive:
       events.add(EventName.wrongCruiseMode)
 
-    if cs_out.steerError:
+    if not cs_out.lkMode:
+      events.add(EventName.manualSteeringRequired)
+    elif cs_out.steerError and cs_out.lkMode:
       events.add(EventName.steerUnavailable)
-    elif cs_out.steerWarning:
+    elif cs_out.steerWarning and cs_out.lkMode:
       if cs_out.steeringPressed:
         events.add(EventName.steerTempUnavailableUserOverride)
       else:
