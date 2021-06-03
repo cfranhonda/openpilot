@@ -23,8 +23,8 @@ BOSCH_GAS_LOOKUP_V = [0, 2000]
 def actuator_hystereses(brake, braking, brake_steady, v_ego, car_fingerprint):
   # hyst params
   brake_hyst_on = 0.02     # to activate brakes exceed this value
-  brake_hyst_off = 0.005                     # to deactivate brakes below this value
-  brake_hyst_gap = 0.01                      # don't change brake command for small oscillations within this value
+  brake_hyst_off = 0.005   # to deactivate brakes below this value
+  brake_hyst_gap = 0.01    # don't change brake command for small oscillations within this value
 
   #*** hysteresis logic to avoid brake blinking. go above 0.1 to trigger
   if (brake < brake_hyst_on and not braking) or brake < brake_hyst_off:
@@ -184,7 +184,7 @@ class CarController():
             stopped = 1
             # go to full brake after 1 second of standstill
             if (frame - self.stopped_frame) >= 100:
-              brake = 3.5 / 7.0 # todo: fix this hack 
+              brake = 3.5 / 7.0 # todo: fix this hack
         # wheeltick changed since last loop. no standstill
         else:
           self.last_wheeltick = CS.avg_wheelTick
