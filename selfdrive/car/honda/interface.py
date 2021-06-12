@@ -503,6 +503,7 @@ class CarInterface(CarInterfaceBase):
     ret.canValid = self.cp.can_valid and self.cp_cam.can_valid and (self.cp_body is None or self.cp_body.can_valid)
     ret.yawRate = self.VM.yaw_rate(ret.steeringAngleDeg * CV.DEG_TO_RAD, ret.vEgo)
 
+    ret.readdistancelines = self.CS.read_distance_lines
     ret.lkMode = self.CS.lkMode
     buttonEvents = []
 
