@@ -211,15 +211,10 @@ class CarInterface(CarInterfaceBase):
         ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 4096], [0, 4096]]  # TODO: determine if there is a dead zone at the top end
         ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.8], [0.24]]
       tire_stiffness_factor = 1.
-    
-      ret.longitudinalTuning.kpBP = [0., .3, 10., 35.] #taken from an xps fork that i saw and adapted closer to Bosch numbers
-      ret.longitudinalTuning.kpV = [1.2, 0.8, 0.55, 0.2] #it could totally suck so be careful.
-      ret.longitudinalTuning.kiBP = [0., .3, 15., 35.] #stock tuning is below - which isn't much better lol
-      ret.longitudinalTuning.kiV = [0.15, 0.10, 0.05, 0.045]
-      #ret.longitudinalTuning.kpBP = [0., 5., 35.]
-      #ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
-      #ret.longitudinalTuning.kiBP = [0., 35.]
-      #ret.longitudinalTuning.kiV = [0.18, 0.12]
+      ret.longitudinalTuning.kpBP = [0., 5., 35.]
+      ret.longitudinalTuning.kpV = [1.0, 0.6, 0.3]
+      ret.longitudinalTuning.kiBP = [0., 35.]
+      ret.longitudinalTuning.kiV = [0.15, 0.015]
 
     elif candidate in (CAR.ACCORD, CAR.ACCORD_15, CAR.ACCORDH):
       stop_and_go = True
