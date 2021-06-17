@@ -448,8 +448,8 @@ class CarInterface(CarInterfaceBase):
     if candidate in HONDA_BOSCH:
       ret.gasMaxBP = [0., 2.7, 5.5, 11.1, 36.1] #6, 12, 25, 60, 80 mph stolen from Hyundai
       ret.gasMaxV = [0.35, 0.28, 0.23, 0.15, 0.1]
-      ret.brakeMaxBP = [5., 20.]  # m/s
-      ret.brakeMaxV = [1., 0.8]   # max brake allowed
+      ret.brakeMaxBP = [0.]  # m/s
+      ret.brakeMaxV = [1.]   # max brake allowed
     else:
       ret.gasMaxBP = [0.]  # m/s
       ret.gasMaxV = [0.6] if ret.enableGasInterceptor else [0.]  # max gas allowed
@@ -459,7 +459,7 @@ class CarInterface(CarInterfaceBase):
     ret.stoppingControl = True
     ret.stoppingBrakeRate = 0.2  # brake_travel/s while trying to stop
     ret.startingBrakeRate = 2.0  # brake_travel/s while releasing on restart
-    ret.startAccel = 0.5
+    ret.startAccel = 0.3
 
     ret.steerActuatorDelay = 0.1
     ret.steerRateCost = 0.5
