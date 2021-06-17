@@ -158,6 +158,9 @@ class CarInterface(CarInterfaceBase):
 
     cloudlog.warning("ECU Camera Simulated: %r", ret.enableCamera)
     cloudlog.warning("ECU Gas Interceptor: %r", ret.enableGasInterceptor)
+    
+    if candidate in HONDA_BOSCH:
+    cloudlog.warning("ECU Honda Bosch Radar Simulated: %r", ret.openpilotLongitudinalControl)
 
 
     # Certain Hondas have an extra steering sensor at the bottom of the steering rack,
