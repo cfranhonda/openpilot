@@ -133,32 +133,7 @@ class CarController():
 
     # **** process the car messages ****
 
-    if CS.CP.carFingerprint in HONDA_BOSCH:
-      stopped = 0
-      starting = 0
-      gas = actuators.gas
-      brake = actuators.brake
-      accel = actuators.gas - actuators.brake
-      if accel < 0 and CS.out.vEgo <= 0.1:
-        if CS.avg_wheelTick == self.last_wheeltick:
-          self.last_wheeltick_ct += 1
-          if self.last_wheeltick_ct == 6:
-            self.stopped_frame = frame
-          if self.last_wheeltick_ct >= 6:
-            stopped = 1
-            # go to full brake after 1 second of standstill
-            if (frame - self.stopped_frame) >= 100:
-              accel = -1.0
-        else:
-          self.last_wheeltick = CS.avg_wheelTick
-          self.last_wheeltick_ct = 0
-          self.stopped_frame = 0
-
-      elif accel > 0 and (0.3 >= CS.out.vEgo >= 0):
-        starting = 1
-      
-      apply_accel = interp(accel, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
-      apply_gas = interp(accel, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
+   
 
     # steer torque is converted back to CAN reference (positive when steering right)
     apply_steer = int(interp(-actuators.steer * P.STEER_MAX, P.STEER_LOOKUP_BP, P.STEER_LOOKUP_V))
@@ -198,19 +173,32 @@ class CarController():
       if (frame % 2) == 0:
         idx = frame // 2
         ts = frame * DT_CTRL
-        if CS.CP.carFingerprint in HONDA_BOSCH:
-          accel = actuators.gas - actuators.brake
+      if CS.CP.carFingerprint in HONDA_BOSCH:
+      stopped = 0
+      starting = 0
+      gas = actuators.gas
+      brake = actuators.brake
+      accel = actuators.gas - actuators.brake
+      if accel < 0 and CS.out.vEgo <= 0.1:
+        if CS.avg_wheelTick == self.last_wheeltick:
+          self.last_wheeltick_ct += 1
+          if self.last_wheeltick_ct == 6:
+            self.stopped_frame = frame
+          if self.last_wheeltick_ct >= 6:
+            stopped = 1
+            # go to full brake after 1 second of standstill
+            if (frame - self.stopped_frame) >= 100:
+              accel = -1.0
+        else:
+          self.last_wheeltick = CS.avg_wheelTick
+          self.last_wheeltick_ct = 0
+          self.stopped_frame = 0
 
-          # TODO: pass in LoC.long_control_state and use that to decide starting/stoppping
-          stopping = accel < 0 and CS.out.vEgo < 0.3
-          starting = accel > 0 and CS.out.vEgo < 0.3
-
-          # Prevent rolling backwards
-          accel = -1.0 if stopping else accel
-
-          apply_accel = interp(accel, P.BOSCH_ACCEL_LOOKUP_BP, P.BOSCH_ACCEL_LOOKUP_V)
-          apply_gas = interp(accel, P.BOSCH_GAS_LOOKUP_BP, P.BOSCH_GAS_LOOKUP_V)
-          can_sends.extend(hondacan.create_acc_commands(self.packer, enabled, apply_accel, apply_gas, idx, stopping, starting, CS.CP.carFingerprint))
+      elif accel > 0 and (0.3 >= CS.out.vEgo >= 0):
+        starting = 1
+      
+      apply_accel = interp(accel, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
+      apply_gas = interp(accel, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
 
         else:
           apply_gas = clip(actuators.gas, 0., 1.)
