@@ -57,12 +57,16 @@ class Controls:
     if TICI:
       self.camera_packets.append("wideRoadCameraState")
 
+    params = Params()
+    self.joystick_mode = params.get_bool("JoystickDebugMode")
+    joystick_packet = ['testJoystick'] if self.joystick_mode else []
+
     self.sm = sm
     if self.sm is None:
       ignore = ['driverCameraState', 'managerState'] if SIMULATION else None
       self.sm = messaging.SubMaster(['deviceState', 'pandaState', 'modelV2', 'liveCalibration',
                                      'driverMonitoringState', 'longitudinalPlan', 'lateralPlan', 'liveLocationKalman',
-                                     'managerState', 'liveParameters', 'radarState'] + self.camera_packets,
+                                     'managerState', 'liveParameters', 'radarState'] + self.camera_packets + joystick_packet,
                                      ignore_alive=ignore, ignore_avg_freq=['radarState', 'longitudinalPlan'])
 
     self.can_sock = can_sock
@@ -80,10 +84,8 @@ class Controls:
     self.CI, self.CP = get_car(self.can_sock, self.pm.sock['sendcan'])
 
     # read params
-    params = Params()
     self.is_metric = params.get_bool("IsMetric")
     self.is_ldw_enabled = params.get_bool("IsLdwEnabled")
-    self.enable_lte_onroad = params.get_bool("EnableLteOnroad")
     community_feature_toggle = params.get_bool("CommunityFeaturesToggle")
     openpilot_enabled_toggle = params.get_bool("OpenpilotEnabledToggle")
     passive = params.get_bool("Passive") or not openpilot_enabled_toggle
@@ -156,6 +158,9 @@ class Controls:
       self.events.add(EventName.carUnrecognized, static=True)
     elif self.read_only:
       self.events.add(EventName.dashcamMode, static=True)
+    elif self.joystick_mode:
+      self.events.add(EventName.joystickDebug, static=True)
+      self.startup_event = None
 
     # controlsd is driven by can recv, expected at 100Hz
     self.rk = Ratekeeper(100, print_delay_threshold=None)
@@ -184,11 +189,11 @@ class Controls:
       self.events.add(EventName.lowBattery)
     if self.sm['deviceState'].thermalStatus >= ThermalStatus.red:
       self.events.add(EventName.overheat)
-    if self.sm['deviceState'].freeSpacePercent < 7:
+    if self.sm['deviceState'].freeSpacePercent < 7 and not SIMULATION:
       # under 7% of space free no enable allowed
       self.events.add(EventName.outOfSpace)
     # TODO: make tici threshold the same
-    if self.sm['deviceState'].memoryUsagePercent > (90 if TICI else 65):
+    if self.sm['deviceState'].memoryUsagePercent > (90 if TICI else 65) and not SIMULATION:
       self.events.add(EventName.lowMemory)
 
     # Alert if fan isn't spinning for 5 seconds
@@ -258,7 +263,7 @@ class Controls:
     if self.sm['longitudinalPlan'].fcw or (self.enabled and self.sm['modelV2'].meta.hardBrakePredicted):
       self.events.add(EventName.fcw)
 
-    if TICI and self.enable_lte_onroad:
+    if TICI:
       logs = messaging.drain_sock(self.log_sock, wait_for_one=False)
       messages = []
       for m in logs:
@@ -281,8 +286,7 @@ class Controls:
     # TODO: fix simulator
     if not SIMULATION:
       if not NOSENSOR:
-        if not self.sm['liveLocationKalman'].gpsOK and (self.distance_traveled > 1000) and \
-          (not TICI or self.enable_lte_onroad):
+        if not self.sm['liveLocationKalman'].gpsOK and (self.distance_traveled > 1000):
           # Not show in first 1 km to allow for driving out of garage. This event shows after 5 minutes
           self.events.add(EventName.noGps)
       if not self.sm.all_alive(self.camera_packets):
@@ -313,6 +317,7 @@ class Controls:
 
     all_valid = CS.canValid and self.sm.all_alive_and_valid()
     if not self.initialized and (all_valid or self.sm.frame * DT_CTRL > 2.0):
+      self.CI.init(self.CP, self.can_sock, self.pm.sock['sendcan'])
       self.initialized = True
       Params().put_bool("ControlsReady", True)
 
@@ -444,11 +449,26 @@ class Controls:
     a_acc_sol = long_plan.aStart + (dt / LON_MPC_STEP) * (long_plan.aTarget - long_plan.aStart)
     v_acc_sol = long_plan.vStart + dt * (a_acc_sol + long_plan.aStart) / 2.0
 
-    # Gas/Brake PID loop
-    actuators.gas, actuators.brake = self.LoC.update(self.active, CS, v_acc_sol, long_plan.vTargetFuture, a_acc_sol, self.CP)
+    if not self.joystick_mode:
+      # Gas/Brake PID loop
+      actuators.gas, actuators.brake = self.LoC.update(self.active, CS, v_acc_sol, long_plan.vTargetFuture, a_acc_sol, self.CP)
 
-    # Steering PID loop and lateral MPC
-    actuators.steer, actuators.steeringAngleDeg, lac_log = self.LaC.update(self.active, CS, self.CP, self.VM, params, lat_plan)
+      # Steering PID loop and lateral MPC
+      actuators.steer, actuators.steeringAngleDeg, lac_log = self.LaC.update(self.active, CS, self.CP, self.VM, params, lat_plan)
+    else:
+      lac_log = log.ControlsState.LateralDebugState.new_message()
+      if self.sm.rcv_frame['testJoystick'] > 0 and self.active:
+        gb = clip(self.sm['testJoystick'].axes[0], -1, 1)
+        actuators.gas, actuators.brake = max(gb, 0), max(-gb, 0)
+
+        steer = clip(self.sm['testJoystick'].axes[1], -1, 1)
+        # max angle is 45 for angle-based cars
+        actuators.steer, actuators.steeringAngleDeg = steer, steer * 45.
+
+        lac_log.active = True
+        lac_log.steeringAngleDeg = CS.steeringAngleDeg
+        lac_log.output = steer
+        lac_log.saturated = abs(steer) >= 0.9
 
     # Check for difference between desired angle and angle for angle based control
     angle_control_saturated = self.CP.steerControlType == car.CarParams.SteerControlType.angle and \
@@ -482,6 +502,9 @@ class Controls:
 
     CC.cruiseControl.override = True
     CC.cruiseControl.cancel = not self.CP.enableCruise or (not self.enabled and CS.cruiseState.enabled)
+
+    if self.joystick_mode and self.sm.rcv_frame['testJoystick'] > 0 and self.sm['testJoystick'].buttons[0]:
+      CC.cruiseControl.cancel = True
 
     # Some override values for Honda
     # brake discount removes a sharp nonlinearity
@@ -573,7 +596,9 @@ class Controls:
     controlsState.forceDecel = bool(force_decel)
     controlsState.canErrorCounter = self.can_error_counter
 
-    if self.CP.steerControlType == car.CarParams.SteerControlType.angle:
+    if self.joystick_mode:
+      controlsState.lateralControlState.debugState = lac_log
+    elif self.CP.steerControlType == car.CarParams.SteerControlType.angle:
       controlsState.lateralControlState.angleState = lac_log
     elif self.CP.lateralTuning.which() == 'pid':
       controlsState.lateralControlState.pidState = lac_log

@@ -16,6 +16,12 @@ class CarControllerParams():
       self.STEER_LOOKUP_BP = [v * -1 for v in CP.lateralParams.torqueBP][1:][::-1] + list(CP.lateralParams.torqueBP)
       self.STEER_LOOKUP_V = [v * -1 for v in CP.lateralParams.torqueV][1:][::-1] + list(CP.lateralParams.torqueV)
 
+      self.BOSCH_ACCEL_LOOKUP_BP = [-1., 0., 0.6]
+      self.BOSCH_ACCEL_LOOKUP_V = [-3.5, 0., 2.]
+      self.BOSCH_GAS_LOOKUP_BP = [0., 0.6]
+      self.BOSCH_GAS_LOOKUP_V = [0, 2000]
+
+
 # Car button codes
 class CruiseButtons:
   RES_ACCEL = 4
@@ -28,6 +34,7 @@ VISUAL_HUD = {
   VisualAlert.none: 0,
   VisualAlert.fcw: 1,
   VisualAlert.steerRequired: 1,
+  VisualAlert.ldw: 1,
   VisualAlert.brakePressed: 10,
   VisualAlert.wrongGear: 6,
   VisualAlert.seatbeltUnbuckled: 5,
@@ -156,6 +163,7 @@ FW_VERSIONS = {
       b'28102-6B8-A570\x00\x00',
       b'28102-6B8-A700\x00\x00',
       b'28102-6B8-A800\x00\x00',
+      b'28102-6B8-C560\x00\x00',
       b'28102-6B8-C570\x00\x00',
       b'28102-6B8-M520\x00\x00',
       b'28101-6A7-A220\x00\x00',
@@ -624,6 +632,7 @@ FW_VERSIONS = {
   },
   CAR.CRV_5G: {
     (Ecu.programmedFuelInjection, 0x18da10f1, None): [
+      b'37805-5PA-AH20\x00\x00',
       b'37805-5PA-3060\x00\x00',
       b'37805-5PA-3080\x00\x00',
       b'37805-5PA-3180\x00\x00',
@@ -1138,6 +1147,7 @@ FW_VERSIONS = {
       b'78109-T6Z-A420\x00\x00',
       b'78109-T6Z-A510\x00\x00',
       b'78109-T6Z-A710\x00\x00',
+      b'78109-T6Z-A910\x00\x00',
       b'78109-T6Z-AA10\x00\x00',
       b'78109-T6Z-C620\x00\x00',
       b'78109-TJZ-A510\x00\x00',

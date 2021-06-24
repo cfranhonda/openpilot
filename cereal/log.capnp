@@ -322,6 +322,7 @@ struct DeviceState @0xa4d8b5af2aa492eb {
     cell3G @3;
     cell4G @4;
     cell5G @5;
+    ethernet @6;
   }
 
   enum NetworkStrength {
@@ -544,6 +545,7 @@ struct ControlsState @0x97ff69c53601abf1 {
     pidState @53 :LateralPIDState;
     lqrState @55 :LateralLQRState;
     angleState @58 :LateralAngleState;
+    debugState @59 :LateralDebugState;
   }
 
   enum OpenpilotState @0xdbe58b96d2d1ac61 {
@@ -615,6 +617,13 @@ struct ControlsState @0x97ff69c53601abf1 {
     saturated @3 :Bool;
   }
 
+  struct LateralDebugState {
+    active @0 :Bool;
+    steeringAngleDeg @1 :Float32;
+    output @2 :Float32;
+    saturated @3 :Bool;
+  }
+
   # deprecated
   vEgoDEPRECATED @0 :Float32;
   vEgoRawDEPRECATED @32 :Float32;
@@ -669,6 +678,7 @@ struct ModelDataV2 {
 
   # predicted lead cars
   leads @11 :List(LeadDataV2);
+  leadsV3 @18 :List(LeadDataV3);
 
   meta @12 :MetaData;
 
@@ -693,6 +703,25 @@ struct ModelDataV2 {
     xyva @2 :List(Float32);
     xyvaStd @3 :List(Float32);
   }
+
+  struct LeadDataV3 {
+    prob @0 :Float32; # probability that car is your lead at time t
+    probTime @1 :Float32;
+    t @2 :List(Float32);
+
+    # x and y are relative position in device frame
+    # v absolute norm speed
+    # a is derivative of v
+    x @3 :List(Float32);
+    xStd @4 :List(Float32);
+    y @5 :List(Float32);
+    yStd @6 :List(Float32);
+    v @7 :List(Float32);
+    vStd @8 :List(Float32);
+    a @9 :List(Float32);
+    aStd @10 :List(Float32);
+  }
+
 
   struct MetaData {
     engagedProb @0 :Float32;
@@ -1201,6 +1230,8 @@ struct DriverState {
   partialFace @18 :Float32;
   distractedPose @19 :Float32;
   distractedEyes @20 :Float32;
+  eyesOnRoad @21 :Float32;
+  phoneUse @22 :Float32;
 
   irPwrDEPRECATED @10 :Float32;
   descriptorDEPRECATED @1 :List(Float32);

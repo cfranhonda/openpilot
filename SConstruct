@@ -98,8 +98,8 @@ if arch == "aarch64" or arch == "larch64":
       "#phonelibs/libyuv/lib",
       "/system/vendor/lib64"
     ]
-    cflags = ["-DQCOM", "-mcpu=cortex-a57"]
-    cxxflags = ["-DQCOM", "-mcpu=cortex-a57"]
+    cflags = ["-DQCOM", "-D_USING_LIBCXX", "-mcpu=cortex-a57"]
+    cxxflags = ["-DQCOM", "-D_USING_LIBCXX", "-mcpu=cortex-a57"]
     rpath = []
 else:
   cflags = []
@@ -195,8 +195,6 @@ env = Environment(
     "#phonelibs/qrcode",
     "#phonelibs",
     "#cereal",
-    "#cereal/messaging",
-    "#cereal/visionipc",
     "#opendbc/can",
   ],
 
@@ -411,6 +409,9 @@ SConscript(['selfdrive/loggerd/SConscript'])
 SConscript(['selfdrive/locationd/SConscript'])
 SConscript(['selfdrive/sensord/SConscript'])
 SConscript(['selfdrive/ui/SConscript'])
+
+if arch == "aarch64":
+  SConscript(['selfdrive/hardware/eon/SConscript'])
 
 if arch != "Darwin":
   SConscript(['selfdrive/logcatd/SConscript'])
