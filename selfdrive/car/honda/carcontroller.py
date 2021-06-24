@@ -161,10 +161,10 @@ class CarController():
       if gas:
          apply_gas = interp(gas, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
          apply_accel = clip(aTarget, 0.0, BOSCH_ACCEL_MAX) if aTarget >= 0.0 else 0
-       elif brake:
+      elif brake:
          apply_gas = 0
          apply_accel = interp(-brake, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
-       else:
+      else:
          apply_gas = 0
          apply_accel = 0
 
