@@ -73,7 +73,7 @@ TogglesPanel::TogglesPanel(QWidget *parent) : QWidget(parent) {
                                    "../assets/offroad/icon_road.png",
                                    this));
 
-  toggles.append(new ParamControl("VisionRadarToggle",
+  toggles.append(new ParamControl("DisableRadar",
                                    "Enable Vision Radar",
                                    "Use comma vision as the radar for vehicle detection.",
                                    "../assets/offroad/icon_road.png",
