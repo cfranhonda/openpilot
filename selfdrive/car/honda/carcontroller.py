@@ -10,6 +10,10 @@ from opendbc.can.packer import CANPacker
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
+BOSCH_ACCEL_LOOKUP_BP = [-1., 0., 0.6]
+BOSCH_ACCEL_LOOKUP_V = [-3.5, 0., 2.]
+BOSCH_GAS_LOOKUP_BP = [0., 0.6]
+BOSCH_GAS_LOOKUP_V = [0, 2000]
 
 def actuator_hystereses(brake, braking, brake_steady, v_ego, car_fingerprint):
   # hyst params
@@ -63,7 +67,7 @@ def process_hud_alert(hud_alert):
   # priority is: FCW, steer required, all others
   if hud_alert == VisualAlert.fcw:
     fcw_display = VISUAL_HUD[hud_alert.raw]
-  elif hud_alert in [VisualAlert.steerRequired, VisualAlert.ldw]:
+  elif hud_alert == VisualAlert.steerRequired:
     steer_required = VISUAL_HUD[hud_alert.raw]
   else:
     acc_alert = VISUAL_HUD[hud_alert.raw]
@@ -85,7 +89,6 @@ class CarController():
     self.last_pump_ts = 0.
     self.packer = CANPacker(dbc_name)
     self.new_radar_config = False
-    self.prev_act = 0.
     self.stopped_frame = 0
     self.last_wheeltick = 0
     self.last_wheeltick_ct = 0
@@ -105,10 +108,6 @@ class CarController():
     if not enabled and CS.out.cruiseState.enabled:
       # send pcm acc cancel cmd if drive is disabled but pcm is still on, or if the system can't be activated
       pcm_cancel_cmd = True
-
-    # Never send cancel command if we never enter cruise state (no cruise if pedal)
-    # Cancel cmd causes brakes to release at a standstill causing grinding
-    pcm_cancel_cmd = pcm_cancel_cmd and CS.CP.pcmCruise
 
     # *** rate limit after the enable check ***
     self.brake_last = rate_limit(brake, self.brake_last, -2., DT_CTRL)
