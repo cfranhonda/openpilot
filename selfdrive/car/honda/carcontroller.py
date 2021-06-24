@@ -10,6 +10,12 @@ from opendbc.can.packer import CANPacker
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
+BOSCH_ACCEL_MAX = 2.0
+BOSCH_ACCEL_MIN = -3.5
+BOSCH_ACCEL_LOOKUP_BP = [-1., 0., 0.6]
+BOSCH_ACCEL_LOOKUP_V = [-3.5, 0., 2.]
+BOSCH_GAS_LOOKUP_BP = [0., 0.6]
+BOSCH_GAS_LOOKUP_V = [0, 2000]
 
 def actuator_hystereses(brake, braking, brake_steady, v_ego, car_fingerprint):
   # hyst params
