@@ -132,8 +132,31 @@ class CarController():
                   hud_lanes, fcw_display, acc_alert, steer_required)
 
     # **** process the car messages ****
+    # **** process the car messages ****
 
-   
+    if CS.CP.carFingerprint in HONDA_BOSCH:
+      stopped = 0
+      starting = 0
+      accel = actuators.gas - actuators.brake
+      if accel < 0 and CS.out.vEgo <= 0.1:
+        if CS.avg_wheelTick == self.last_wheeltick:
+          self.last_wheeltick_ct += 1
+          if self.last_wheeltick_ct == 6:
+            self.stopped_frame = frame
+          if self.last_wheeltick_ct >= 6:
+            stopped = 1
+            # go to full brake after 1 second of standstill
+            if (frame - self.stopped_frame) >= 100:
+              accel = -1.0
+        else:
+          self.last_wheeltick = CS.avg_wheelTick
+          self.last_wheeltick_ct = 0
+          self.stopped_frame = 0
+
+      elif accel > 0 and (0.3 >= CS.out.vEgo >= 0):
+        starting = 1
+      apply_accel = interp(accel, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
+      apply_gas = interp(accel, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
 
     # steer torque is converted back to CAN reference (positive when steering right)
     apply_steer = int(interp(-actuators.steer * P.STEER_MAX, P.STEER_LOOKUP_BP, P.STEER_LOOKUP_V))
@@ -143,10 +166,10 @@ class CarController():
     # Send CAN commands.
     can_sends = []
 
-    # tester present - w/ no response (keeps radar disabled)
     if CS.CP.carFingerprint in HONDA_BOSCH and CS.CP.openpilotLongitudinalControl:
       if (frame % 10) == 0:
-        can_sends.append((0x18DAB0F1, 0, b"\x02\x3E\x80\x00\x00\x00\x00\x00", 1))
+        # tester present - w/ no response (keeps radar disabled)
+        can_sends.append([0x18DAB0F1, 0, b"\x02\x3E\x80\x00\x00\x00\x00\x00", 1])
 
     # Send steering command.
     idx = frame % 4
@@ -174,31 +197,7 @@ class CarController():
         idx = frame // 2
         ts = frame * DT_CTRL
         if CS.CP.carFingerprint in HONDA_BOSCH:
-          stopped = 0
-          starting = 0
-          gas = actuators.gas
-          brake = actuators.brake
-          accel = actuators.gas - actuators.brake
-          if accel < 0 and CS.out.vEgo <= 0.1:
-            if CS.avg_wheelTick == self.last_wheeltick:
-              self.last_wheeltick_ct += 1
-              if self.last_wheeltick_ct == 6:
-                self.stopped_frame = frame
-              if self.last_wheeltick_ct >= 6:
-                stopped = 1
-            # go to full brake after 1 second of standstill
-                if (frame - self.stopped_frame) >= 100:
-                  accel = -1.0
-            else:
-              self.last_wheeltick = CS.avg_wheelTick
-              self.last_wheeltick_ct = 0
-              self.stopped_frame = 0
-
-          elif accel > 0 and (0.3 >= CS.out.vEgo >= 0):
-            starting = 1
-          apply_accel = interp(accel, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
-          apply_gas = interp(accel, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
-
+          can_sends.extend(hondacan.create_acc_commands(self.packer, enabled, apply_accel, apply_gas, idx, stopped, starting, CS.CP.carFingerprint))
         else:
           apply_gas = clip(actuators.gas, 0., 1.)
           apply_brake = int(clip(self.brake_last * P.BRAKE_MAX, 0, P.BRAKE_MAX - 1))
