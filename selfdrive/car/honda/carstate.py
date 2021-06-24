@@ -102,6 +102,7 @@ def get_can_signals(CP, gearbox_msg="GEARBOX"):
     checks += [
       ("EPB_STATUS", 50),
       ("GAS_PEDAL_2", 100),
+      ("WHEEL_TICKS", 50),
     ]
 
     if not CP.openpilotLongitudinalControl:
