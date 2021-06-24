@@ -176,7 +176,7 @@ class CarController():
           starting = accel > 0 and CS.out.vEgo < 0.3
 
           # Prevent rolling backwards
-          accel = -1.0 if stopping else accel
+          # accel = -1.0 if stopping else accel
 
           apply_accel = interp(accel, P.BOSCH_ACCEL_LOOKUP_BP, P.BOSCH_ACCEL_LOOKUP_V)
           apply_gas = interp(accel, P.BOSCH_GAS_LOOKUP_BP, P.BOSCH_GAS_LOOKUP_V)
