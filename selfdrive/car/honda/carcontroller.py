@@ -10,13 +10,6 @@ from opendbc.can.packer import CANPacker
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
-BOSCH_ACCEL_MAX = 2.0
-BOSCH_ACCEL_MIN = -3.5
-BOSCH_ACCEL_LOOKUP_BP = [-1., 0., 0.6]
-BOSCH_ACCEL_LOOKUP_V = [-3.5, 0., 2.]
-BOSCH_GAS_LOOKUP_BP = [0., 0.6]
-BOSCH_GAS_LOOKUP_V = [0, 2000]
-
 def actuator_hystereses(brake, braking, brake_steady, v_ego, car_fingerprint):
   # hyst params
   brake_hyst_on = 0.02     # to activate brakes exceed this value
@@ -163,16 +156,6 @@ class CarController():
 
       elif accel > 0 and (0.3 >= CS.out.vEgo >= 0):
         starting = 1
-
-      if gas:
-         apply_gas = interp(gas, BOSCH_GAS_LOOKUP_BP, BOSCH_GAS_LOOKUP_V)
-         apply_accel = clip(aTarget, 0.0, BOSCH_ACCEL_MAX) if aTarget >= 0.0 else 0
-      elif brake:
-         apply_gas = 0
-         apply_accel = interp(-brake, BOSCH_ACCEL_LOOKUP_BP, BOSCH_ACCEL_LOOKUP_V)
-      else:
-         apply_gas = 0
-         apply_accel = 0
 
 
     # steer torque is converted back to CAN reference (positive when steering right)
