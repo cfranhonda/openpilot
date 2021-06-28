@@ -546,6 +546,6 @@ class CarState(CarStateBase):
         ("BSM_STATUS_LEFT", 3),
         ("BSM_STATUS_RIGHT", 3),
       ]
-      bus_body = 0 # B-CAN is forwarded to ACC-CAN radar side (CAN 0 on fake ethernet port)
+      bus_body = 0 #  B-CAN is forwarded to ACC-CAN radar side (CAN 0 on fake ethernet port)
       return CANParser(DBC[CP.carFingerprint]["body"], signals, checks, bus_body)
     return None
