@@ -109,7 +109,6 @@ struct CarEvent @0x9b1657f34caf3ad3 {
     driverCameraError @101;
     wideRoadCameraError @102;
     localizerMalfunction @103;
-    epsNotFound @104;
     manualSteeringRequired @105;
 
     radarCanErrorDEPRECATED @15;
