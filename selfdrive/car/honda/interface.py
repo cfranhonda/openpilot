@@ -152,9 +152,6 @@ class CarInterface(CarInterfaceBase):
     if candidate == CAR.ACCORD and 0x191 in fingerprint[1]:
       ret.transmissionType = TransmissionType.cvt
 
-    cloudlog.warning("ECU Camera Simulated: %r", ret.enableCamera)
-    cloudlog.warning("ECU Gas Interceptor: %r", ret.enableGasInterceptor)
-
     # Certain Hondas have an extra steering sensor at the bottom of the steering rack,
     # which improves controls quality as it removes the steering column torsion from feedback.
     # Tire stiffness factor fictitiously lower if it includes the steering column torsion effect.
