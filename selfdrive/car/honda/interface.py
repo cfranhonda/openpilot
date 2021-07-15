@@ -205,7 +205,7 @@ class CarInterface(CarInterfaceBase):
       tire_stiffness_factor = 1.
       #taken from xx979xx Hyundai fork
       ret.longitudinalTuning.kpBP = [0., 10., 40.]
-      ret.longitudinalTuning.kpV = [1.0, 0.6, 0.2]
+      ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
       ret.longitudinalTuning.kiBP = [0., 10., 30., 40.]
       ret.longitudinalTuning.kiV = [0.05, 0.02, 0.01, 0.005]
       ret.longitudinalTuning.deadzoneBP = [0., 40]
@@ -224,7 +224,7 @@ class CarInterface(CarInterfaceBase):
       ret.lateralParams.torqueBP, ret.lateralParams.torqueV = [[0, 4096], [0, 4096]]  # TODO: determine if there is a dead zone at the top end
       tire_stiffness_factor = 0.8467
       ret.longitudinalTuning.kpBP = [0., 10., 40.]
-      ret.longitudinalTuning.kpV = [1.0, 0.6, 0.2]
+      ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
       ret.longitudinalTuning.kiBP = [0., 10., 30., 40.]
       ret.longitudinalTuning.kiV = [0.05, 0.02, 0.01, 0.005]
       ret.longitudinalTuning.deadzoneBP = [0., 40]
@@ -284,7 +284,7 @@ class CarInterface(CarInterfaceBase):
         ret.lateralTuning.pid.kpV, ret.lateralTuning.pid.kiV = [[0.64], [0.192]]
       tire_stiffness_factor = 0.677
       ret.longitudinalTuning.kpBP = [0., 10., 40.]
-      ret.longitudinalTuning.kpV = [1.0, 0.6, 0.2]
+      ret.longitudinalTuning.kpV = [1.2, 0.8, 0.5]
       ret.longitudinalTuning.kiBP = [0., 10., 30., 40.]
       ret.longitudinalTuning.kiV = [0.05, 0.02, 0.01, 0.005]
       ret.longitudinalTuning.deadzoneBP = [0., 40]
